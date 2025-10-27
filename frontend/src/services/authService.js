@@ -1,39 +1,80 @@
-import api from '../utils/api';
+import { getToken, setToken, removeToken, isTokenExpired } from '../utils/tokenUtils';
 
-export const authService = {
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+class AuthService {
+  constructor() {
+    this.baseURL = API_BASE_URL;
+  }
+
+  async request(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    const token = getToken();
+    
+    if (token && isTokenExpired(token)) {
+      removeToken();
+      throw new Error('Token đã hết hạn');
+    }
+    
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    const response = await fetch(url, config);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        removeToken();
+      }
+      throw new Error(errorData.detail || errorData.message || 'Đăng nhập thất bại');
+    }
+
+    return await response.json();
+  }
+
   async login(email, password) {
     const formData = new FormData();
     formData.append('username', email);
     formData.append('password', password);
-    
-    const response = await api.post('/auth/login', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+
+    const data = await this.request('/auth/login', {
+      method: 'POST',
+      headers: {},
+      body: formData,
     });
     
-    if (response.data.access_token) {
-      localStorage.setItem('access_token', response.data.access_token);
+    if (data.access_token) {
+      setToken(data.access_token);
     }
     
-    return response.data;
-  },
+    return data;
+  }
 
   async register(userData) {
-    const response = await api.post('/auth/register', userData);
-    return response.data;
-  },
+    return this.request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
 
   async getCurrentUser() {
-    const response = await api.get('/auth/me');
-    return response.data;
-  },
+    return this.request('/auth/me');
+  }
 
   logout() {
-    localStorage.removeItem('access_token');
-  },
+    removeToken();
+  }
 
   isAuthenticated() {
-    return !!localStorage.getItem('access_token');
+    const token = getToken();
+    return token && !isTokenExpired(token);
   }
-};
+}
+
+export const authService = new AuthService();

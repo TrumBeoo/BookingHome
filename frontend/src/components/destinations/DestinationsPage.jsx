@@ -1,330 +1,246 @@
-import React from 'react';
-import {
-  Container,
-  Grid,
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  Box,
-  Button,
-} from '@mui/material';
-import { LocationOn, TrendingUp } from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../common/Layout';
+import destinationService from '../../services/destinationService';
+import './DestinationsPage.css';
 
 const DestinationsPage = () => {
   const navigate = useNavigate();
+  const [destinations, setDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    province: '',
+    destination_type: '',
+    season: '',
+    search: '',
+    sort_by: 'featured'
+  });
+  const [provinces, setProvinces] = useState([]);
+  const [types, setTypes] = useState([]);
 
-  const destinations = [
-    {
-      id: 1,
-      name: 'Sa Pa',
-      province: 'Lào Cai',
-      properties: 156,
-      averagePrice: 1200000,
-      image: '/api/placeholder/400/300',
-      trending: true,
-      description: 'Thị trấn núi nổi tiếng với ruộng bậc thang và văn hóa dân tộc đa dạng',
-    },
-    {
-      id: 2,
-      name: 'Hội An',
-      province: 'Quảng Nam',
-      properties: 234,
-      averagePrice: 800000,
-      image: '/api/placeholder/400/300',
-      trending: true,
-      description: 'Phố cổ di sản với kiến trúc độc đáo và ẩm thực phong phú',
-    },
-    {
-      id: 3,
-      name: 'Đà Lạt',
-      province: 'Lâm Đồng',
-      properties: 189,
-      averagePrice: 1000000,
-      image: '/api/placeholder/400/300',
-      trending: false,
-      description: 'Thành phố ngàn hoa với khí hậu mát mẻ quanh năm',
-    },
-    {
-      id: 4,
-      name: 'Phú Quốc',
-      province: 'Kiên Giang',
-      properties: 98,
-      averagePrice: 1500000,
-      image: '/api/placeholder/400/300',
-      trending: true,
-      description: 'Đảo ngọc với bãi biển đẹp và hải sản tươi ngon',
-    },
-    {
-      id: 5,
-      name: 'Ninh Bình',
-      province: 'Ninh Bình',
-      properties: 67,
-      averagePrice: 900000,
-      image: '/api/placeholder/400/300',
-      trending: false,
-      description: 'Tràng An - Di sản thiên nhiên với cảnh quan hùng vĩ',
-    },
-    {
-      id: 6,
-      name: 'Hạ Long',
-      province: 'Quảng Ninh',
-      properties: 123,
-      averagePrice: 1100000,
-      image: '/api/placeholder/400/300',
-      trending: true,
-      description: 'Vịnh di sản thế giới với hàng nghìn đảo đá vôi kỳ thú',
-    },
+  // Background images for destinations (thay đổi đường dẫn ảnh tại đây)
+  const backgroundImages = [
+    '/images/destinations/bg1.jpg',
+    '/images/destinations/bg2.jpg', 
+    '/images/destinations/bg3.jpg',
+    '/images/destinations/bg4.jpg',
+    '/images/destinations/bg5.jpg',
+    '/images/destinations/bg6.jpg',
+    '/images/destinations/bg7.jpg',
+    '/images/destinations/bg8.jpg'
   ];
 
+  // Gradient colors for destinations (fallback nếu ảnh không load được)
+  const gradients = [
+    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+    'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+  ];
+
+  useEffect(() => {
+    console.log('DestinationsPage mounted, filters:', filters);
+    fetchDestinations();
+    fetchFiltersData();
+  }, [filters]);
+
+  useEffect(() => {
+    console.log('Destinations state updated:', destinations);
+  }, [destinations]);
+
+  useEffect(() => {
+    console.log('Loading state:', loading);
+  }, [loading]);
+
+  useEffect(() => {
+    console.log('Error state:', error);
+  }, [error]);
+
+  const fetchDestinations = async () => {
+    try {
+      setLoading(true);
+      console.log('Fetching destinations with filters:', filters);
+      const response = await destinationService.getDestinations(filters);
+      console.log('Destinations response:', response);
+      setDestinations(response.destinations || []);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching destinations:', err);
+      setError('Không thể tải danh sách điểm đến. Vui lòng thử lại sau.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFiltersData = async () => {
+    try {
+      const [provincesResponse, typesResponse] = await Promise.all([
+        destinationService.getDestinationProvinces(),
+        destinationService.getDestinationTypes()
+      ]);
+      setProvinces(provincesResponse.provinces || []);
+      setTypes(typesResponse.types || []);
+    } catch (err) {
+      console.error('Error fetching filter data:', err);
+    }
+  };
+
   const handleDestinationClick = (destination) => {
-    navigate(`/search?location=${destination.name}`);
+    navigate(`/search?location=${encodeURIComponent(destination.name)}`);
   };
 
   return (
     <Layout>
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        {/* Header */}
-        <Box textAlign="center" sx={{ mb: 6 }}>
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 700,
-              mb: 2,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              color: 'transparent',
-            }}
-          >
-            Khám Phá Các Điểm Đến
-          </Typography>
-          <Typography
-            variant="h6"
-            sx={{
-              color: 'text.secondary',
-              maxWidth: 600,
-              mx: 'auto',
-              lineHeight: 1.6,
-            }}
-          >
-            Từ núi rừng hùng vĩ đến bãi biển trong xanh, Việt Nam có vô số địa điểm 
-            tuyệt đẹp đang chờ bạn khám phá
-          </Typography>
-        </Box>
+      <div className="destinations-page">
+        <div className="destinations-container">
+          {/* Header */}
+          <div className="destinations-header">
+            <h1 className="page-title">Khám Phá Các Điểm Đến</h1>
+            <p className="page-description">
+              Từ núi rừng hùng vĩ đến bãi biển trong xanh, Việt Nam có vô số địa điểm 
+              tuyệt đẹp đang chờ bạn khám phá
+            </p>
+          </div>
 
-        {/* Destinations Grid */}
-        <Grid container spacing={4}>
-          {destinations.map((destination) => (
-            <Grid item xs={12} sm={6} md={4} key={destination.id}>
-              <Card
-                sx={{
-                  height: '100%',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  '&:hover': {
-                    transform: 'translateY(-8px)',
-                    boxShadow: '0 12px 30px rgba(0,0,0,0.15)',
-                  },
-                  transition: 'all 0.3s ease',
-                }}
-                onClick={() => handleDestinationClick(destination)}
+          {/* Loading State */}
+          {loading && (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Đang tải danh sách điểm đến...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="error-container">
+              <p className="error-message">{error}</p>
+              <button 
+                className="retry-button"
+                onClick={fetchDestinations}
               >
-                {/* Trending Badge */}
-                {destination.trending && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: 12,
-                      right: 12,
-                      zIndex: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      bgcolor: 'secondary.main',
-                      color: 'white',
-                      px: 1.5,
-                      py: 0.5,
-                      borderRadius: 2,
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                 <TrendingUp sx={{ fontSize: 16, mr: 0.5 }} />
-                    Hot
-                  </Box>
-                )}
+                Thử lại
+              </button>
+            </div>
+          )}
 
-                {/* Image */}
-                <CardMedia
-                  component="div"
-                  sx={{
-                    height: 240,
-                    position: 'relative',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Typography variant="body2" sx={{ color: 'white', opacity: 0.7 }}>
-                    {destination.name} Image
-                  </Typography>
-                  
-                  {/* Overlay */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
-                      p: 2,
+          {/* Destinations List */}
+          {!loading && !error && (
+            <div className="destinations-list">
+              {destinations.length === 0 ? (
+                <div className="empty-state">
+                  <p>Không tìm thấy điểm đến nào.</p>
+                </div>
+              ) : (
+                destinations.map((destination, index) => (
+                  <div
+                    key={destination.id}
+                    className="destination-card horizontal-card"
+                    style={{
+                      backgroundImage: `url(${backgroundImages[index % backgroundImages.length]}), ${gradients[index % gradients.length]}`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      animationDelay: `${index * 0.1}s`
                     }}
+                    onClick={() => handleDestinationClick(destination)}
                   >
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        color: 'white',
-                        fontWeight: 700,
-                        textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                      }}
-                    >
-                      {destination.name}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                      <LocationOn sx={{ color: 'white', fontSize: 16, mr: 0.5, opacity: 0.9 }} />
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: 'white',
-                          opacity: 0.9,
-                        }}
-                      >
-                        {destination.province}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardMedia>
+                    {/* Background Overlay */}
+                    <div className="card-overlay"></div>
+                    
+                    {/* Trending Badge */}
+                    {destination.is_featured && (
+                      <div className="trending-badge">
+                        <span className="trending-icon">🔥</span>
+                        <span>Nổi bật</span>
+                      </div>
+                    )}
 
-                <CardContent sx={{ p: 3 }}>
-                  {/* Description */}
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 2,
-                      lineHeight: 1.6,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                    }}
-                  >
-                    {destination.description}
-                  </Typography>
+                    {/* Destination Image */}
+                    {destination.banner_image && (
+                      <div className="destination-image">
+                        <img 
+                          src={destination.banner_image} 
+                          alt={destination.name}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
 
-                  {/* Stats */}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      mb: 2,
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: 'primary.main',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {destination.properties} homestay
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: 'text.secondary',
-                      }}
-                    >
-                      Từ {(destination.averagePrice / 1000000).toFixed(1)}M đ/đêm
-                    </Typography>
-                  </Box>
+                    {/* Card Content */}
+                    <div className="card-content">
+                      <div className="destination-info">
+                        <div className="location-header">
+                          <h3 className="destination-name">{destination.name}</h3>
+                          <div className="destination-location">
+                            <span className="location-icon">📍</span>
+                            <span>{destination.province}</span>
+                          </div>
+                        </div>
+                        
+                        <p className="destination-description">
+                          {destination.short_description}
+                        </p>
+                        
+                        <div className="destination-stats">
+                          <div className="stat-item">
+                            <span className="stat-icon">🏠</span>
+                            <span className="stat-value">{destination.homestay_count} homestay</span>
+                          </div>
+                          <div className="stat-item">
+                            <span className="stat-icon">⭐</span>
+                            <span className="stat-value">
+                              {destination.avg_rating}/5 ({destination.review_count} đánh giá)
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-                  {/* Action Button */}
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    sx={{
-                      borderColor: 'primary.main',
-                      color: 'primary.main',
-                      '&:hover': {
-                        bgcolor: 'primary.main',
-                        color: 'white',
-                      },
-                    }}
-                  >
-                    Khám phá ngay
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                    {/* Decorative Elements */}
+                    <div className="card-decoration">
+                      <div className="decoration-circle circle-1"></div>
+                      <div className="decoration-circle circle-2"></div>
+                      <div className="decoration-circle circle-3"></div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
 
-        {/* CTA Section */}
-        <Box
-          sx={{
-            mt: 8,
-            p: 6,
-            textAlign: 'center',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            borderRadius: 4,
-            color: 'white',
-          }}
-        >
-          <Typography
-            variant="h4"
-            sx={{
-              mb: 2,
-              fontWeight: 700,
-            }}
-          >
-            Không tìm thấy điểm đến yêu thích?
-          </Typography>
-          <Typography
-            variant="h6"
-            sx={{
-              mb: 4,
-              opacity: 0.9,
-              maxWidth: 600,
-              mx: 'auto',
-            }}
-          >
-            Hãy liên hệ với chúng tôi để được tư vấn về những địa điểm du lịch 
-            tuyệt vời khác trên khắp Việt Nam
-          </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              bgcolor: 'secondary.main',
-              px: 4,
-              py: 1.5,
-              fontSize: '1.1rem',
-              '&:hover': {
-                bgcolor: 'secondary.dark',
-              },
-            }}
-            onClick={() => navigate('/contact')}
-          >
-            Liên hệ tư vấn
-          </Button>
-        </Box>
-      </Container>
+          {/* CTA Section */}
+          <div className="cta-section">
+            <div className="cta-content">
+              <h2 className="cta-title">Không tìm thấy điểm đến yêu thích?</h2>
+              <p className="cta-description">
+                Hãy liên hệ với chúng tôi để được tư vấn về những địa điểm du lịch 
+                tuyệt vời khác trên khắp Việt Nam
+              </p>
+              <button 
+                className="cta-button"
+                onClick={() => navigate('/contact')}
+              >
+                <span className="button-icon">📞</span>
+                <span>Liên hệ tư vấn</span>
+              </button>
+            </div>
+            
+            {/* CTA Background Decoration */}
+            <div className="cta-decoration">
+              <div className="decoration-shape shape-1"></div>
+              <div className="decoration-shape shape-2"></div>
+              <div className="decoration-shape shape-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 };

@@ -25,12 +25,46 @@ import {
   Payment,
   Support,
   AdminPanelSettings,
+  Logout,
+  ManageAccounts,
+  Category,
+  RateReview,
+  AccountBalance,
+  Receipt,
+  Assessment,
+  Article,
+  Info,
+  Build,
+  Security,
+  Api,
+  SupervisorAccount,
+  Block,
+  Edit,
+  Add,
+  List as ListAltIcon,
+  Schedule,
+  Notifications,
+  History,
+  MonetizationOn,
+  TrendingUp,
+  Description,
+  ContactSupport,
+  QuestionAnswer,
+  Web,
+  Email,
+  Phone,
+  Campaign,
+  LocalOffer,
+  CalendarMonth,
+  EventAvailable,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
   const [openSubmenu, setOpenSubmenu] = React.useState({});
 
   const menuItems = [
@@ -40,60 +74,115 @@ const Sidebar = () => {
       path: '/dashboard',
     },
     {
-      title: 'Homestay',
+      title: 'Quản lý người dùng',
+      icon: <ManageAccounts />,
+      submenu: [
+        { title: 'Danh sách khách hàng', path: '/dashboard/users/customers', icon: <People /> },
+        { title: 'Danh sách Host', path: '/dashboard/users/hosts', icon: <SupervisorAccount /> },
+        { title: 'Phân quyền', path: '/dashboard/users/permissions', icon: <Security /> },
+        { title: 'Tài khoản bị khóa', path: '/dashboard/users/blocked', icon: <Block /> },
+      ],
+    },
+    {
+      title: 'Quản lý Homestay',
       icon: <Home />,
       submenu: [
-        { title: 'Danh sách', path: '/dashboard/properties' },
-        { title: 'Thêm mới', path: '/dashboard/properties/create' },
-        { title: 'Đánh giá', path: '/dashboard/reviews' },
+        { title: 'Danh sách Homestay', path: '/dashboard/homestays', icon: <ListAltIcon /> },
+        { title: 'Thêm Homestay', path: '/dashboard/homestays/create', icon: <Add /> },
+        { title: 'Quản lý tiện ích', path: '/dashboard/homestays/amenities', icon: <Build /> },
+        { title: 'Danh mục Homestay', path: '/dashboard/homestays/categories', icon: <Category /> },
+        { title: 'Quản lý loại phòng', path: '/dashboard/room-categories', icon: <Hotel /> },
+        { title: 'Quản lý hình ảnh', path: '/dashboard/homestays/images', icon: <Edit /> },
+        { title: 'Quản lý lịch trống', path: '/dashboard/homestays/availability', icon: <Schedule /> },
       ],
     },
     {
-      title: 'Đặt phòng',
+      title: 'Tình trạng Phòng',
+      icon: <CalendarMonth />,
+      submenu: [
+        { title: 'Lịch phòng', path: '/dashboard/room-availability', icon: <EventAvailable /> },
+        { title: 'Phòng đã đặt', path: '/dashboard/room-availability/booked', icon: <BookOnline /> },
+        { title: 'Lịch trống', path: '/dashboard/room-availability/available', icon: <Schedule /> },
+        { title: 'Tích hợp Calendar', path: '/dashboard/room-availability/integration', icon: <Campaign /> },
+      ],
+    },
+    {
+      title: 'Quản lý Đặt phòng',
       icon: <BookOnline />,
       submenu: [
-        { title: 'Tất cả đặt phòng', path: '/dashboard/bookings' },
-        { title: 'Chờ xác nhận', path: '/dashboard/bookings/pending' },
-        { title: 'Đã xác nhận', path: '/dashboard/bookings/confirmed' },
-        { title: 'Đã hủy', path: '/dashboard/bookings/cancelled' },
+        { title: 'Tất cả đặt phòng', path: '/dashboard/bookings', icon: <ListAltIcon /> },
+        { title: 'Chờ xác nhận', path: '/dashboard/bookings/pending', icon: <Notifications /> },
+        { title: 'Đã xác nhận', path: '/dashboard/bookings/confirmed', icon: <BookOnline /> },
+        { title: 'Đã hủy', path: '/dashboard/bookings/cancelled', icon: <Block /> },
+        { title: 'Lịch sử đặt phòng', path: '/dashboard/bookings/history', icon: <History /> },
       ],
     },
     {
-      title: 'Khách hàng',
-      icon: <People />,
-      path: '/dashboard/customers',
-    },
-    {
-      title: 'Doanh thu',
+      title: 'Quản lý Thanh toán',
       icon: <Payment />,
       submenu: [
-        { title: 'Tổng quan', path: '/dashboard/revenue' },
-        { title: 'Báo cáo', path: '/dashboard/revenue/reports' },
-        { title: 'Thanh toán', path: '/dashboard/payments' },
+        { title: 'Danh sách giao dịch', path: '/dashboard/payments/transactions', icon: <Receipt /> },
+        { title: 'Trạng thái thanh toán', path: '/dashboard/payments/status', icon: <MonetizationOn /> },
+        { title: 'Đối soát doanh thu', path: '/dashboard/payments/reconciliation', icon: <AccountBalance /> },
+        { title: 'Báo cáo tài chính', path: '/dashboard/payments/reports', icon: <Assessment /> },
       ],
     },
     {
-      title: 'Phân tích',
+      title: 'Quản lý Đánh giá',
+      icon: <RateReview />,
+      submenu: [
+        { title: 'Tất cả đánh giá', path: '/dashboard/reviews', icon: <Star /> },
+        { title: 'Kiểm duyệt nội dung', path: '/dashboard/reviews/moderation', icon: <Edit /> },
+      ],
+    },
+    {
+      title: 'Quản lý Khuyến mãi',
+      icon: <Campaign />,
+      submenu: [
+        { title: 'Banner giảm giá', path: '/dashboard/promotions', icon: <LocalOffer /> },
+        { title: 'Popup khuyến mãi', path: '/dashboard/promotions', icon: <Campaign /> },
+      ],
+    },
+    {
+      title: 'Quản lý Nội dung',
+      icon: <Article />,
+      submenu: [
+        { title: 'Blog/Tin tức', path: '/dashboard/content/blog', icon: <Article /> },
+        { title: 'Trang tĩnh', path: '/dashboard/content/pages', icon: <Web /> },
+        { title: 'FAQ', path: '/dashboard/content/faq', icon: <QuestionAnswer /> },
+      ],
+    },
+    {
+      title: 'Thống kê & Báo cáo',
       icon: <BarChart />,
-      path: '/dashboard/analytics',
+      submenu: [
+        { title: 'Thống kê Homestay', path: '/dashboard/statistics/homestays', icon: <Home /> },
+        { title: 'Thống kê Booking', path: '/dashboard/statistics/bookings', icon: <BookOnline /> },
+        { title: 'Doanh thu tổng', path: '/dashboard/statistics/revenue', icon: <TrendingUp /> },
+        { title: 'Biểu đồ doanh thu', path: '/dashboard/statistics/charts', icon: <BarChart /> },
+      ],
     },
     {
       title: 'Hỗ trợ',
       icon: <Support />,
       submenu: [
-        { title: 'Tin nhắn', path: '/dashboard/support/messages' },
-        { title: 'FAQ', path: '/dashboard/support/faq' },
+        { title: 'Tin nhắn hỗ trợ', path: '/dashboard/support/messages', icon: <Email /> },
+        { title: 'FAQ quản lý', path: '/dashboard/support/faq-management', icon: <QuestionAnswer /> },
+        { title: 'Hướng dẫn sử dụng', path: '/dashboard/support/guides', icon: <Description /> },
       ],
     },
   ];
 
   const adminMenuItems = [
     {
-      title: 'Quản trị',
-      icon: <AdminPanelSettings />,
+      title: 'Hệ thống & Cấu hình',
+      icon: <Settings />,
       submenu: [
-        { title: 'Người dùng', path: '/dashboard/admin/users' },
-        { title: 'Cài đặt', path: '/dashboard/admin/settings' },
+        { title: 'Cài đặt Website', path: '/dashboard/system/website-settings', icon: <Web /> },
+        { title: 'Quản lý API Key', path: '/dashboard/system/api-keys', icon: <Api /> },
+        { title: 'Phân quyền hệ thống', path: '/dashboard/system/permissions', icon: <AdminPanelSettings /> },
+        { title: 'Cấu hình thanh toán', path: '/dashboard/system/payment-config', icon: <Payment /> },
+        { title: 'Thông tin liên hệ', path: '/dashboard/system/contact-info', icon: <ContactSupport /> },
       ],
     },
   ];
@@ -107,6 +196,11 @@ const Sidebar = () => {
 
   const handleNavigate = (path) => {
     navigate(path);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   const isActive = (path) => location.pathname === path;
@@ -141,6 +235,11 @@ const Sidebar = () => {
                   }}
                   onClick={() => handleNavigate(subItem.path)}
                 >
+                  {subItem.icon && (
+                    <ListItemIcon sx={{ color: 'rgba(255, 255, 255, 0.6)', minWidth: 36 }}>
+                      {subItem.icon}
+                    </ListItemIcon>
+                  )}
                   <ListItemText primary={subItem.title} />
                 </ListItemButton>
               ))}
@@ -216,6 +315,19 @@ const Sidebar = () => {
             <Help />
           </ListItemIcon>
           <ListItemText primary="Trợ giúp" />
+        </ListItemButton>
+        
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{ 
+            color: 'rgba(255,255,255,0.8)',
+            '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
+          }}
+        >
+          <ListItemIcon sx={{ color: 'rgba(255,255,255,0.8)' }}>
+            <Logout />
+          </ListItemIcon>
+          <ListItemText primary="Đăng xuất" />
         </ListItemButton>
       </Box>
     </Box>

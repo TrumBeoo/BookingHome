@@ -1,0 +1,83 @@
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.skeleton-pulse {
+  animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+/* Responsive design for search page */
+@media (max-width: 1024px) {
+  .search-container {
+    flex-direction: column !important;
+  }
+  
+  .search-filters {
+    width: 100% !important;
+    position: static !important;
+    margin-bottom: 24px;
+  }
+  
+  .search-results {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .property-card-horizontal {
+    flex-direction: column !important;
+    height: auto !important;
+    padding: 16px !important;
+  }
+  
+  .property-card-horizontal > div:first-child {
+    width: 100% !important;
+    height: 200px !important;
+    margin-right: 0 !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .property-card-horizontal > div:nth-child(2) {
+    padding-right: 0 !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .property-card-horizontal > div:last-child {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    min-width: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-header h1 {
+    font-size: 2rem !important;
+  }
+  
+  .property-card-horizontal {
+    padding: 12px !important;
+  }
+  
+  .property-card-horizontal > div:first-child {
+    height: 160px !important;
+  }
+  
+  .property-card-horizontal h3 {
+    font-size: 1.1rem !important;
+  }
+  
+  .property-card-horizontal button {
+    padding: 8px 12px !important;
+    font-size: 0.8rem !important;
+    min-width: 80px !important;
+  }
+}

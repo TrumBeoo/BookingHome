@@ -22,7 +22,7 @@ import {
 const Footer = () => {
   const footerSections = [
     {
-      title: 'Về Homestay Hub',
+      title: 'Về Homi',
       links: [
         'Giới thiệu',
         'Chính sách bảo mật',
@@ -68,7 +68,7 @@ const Footer = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Home sx={{ mr: 1, fontSize: 32, color: 'primary.light' }} />
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Homestay Hub
+                Homi
               </Typography>
             </Box>
             <Typography variant="body2" sx={{ mb: 3, color: 'grey.300' }}>
@@ -130,7 +130,7 @@ const Footer = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <LocationOn sx={{ mr: 1, fontSize: 20, color: 'grey.400' }} />
                 <Typography variant="body2" color="grey.300">
-                  123 Đường ABC, Quận 1, TP.HCM
+                   Quang Ninh, Viet Nam
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -142,7 +142,7 @@ const Footer = () => {
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Email sx={{ mr: 1, fontSize: 20, color: 'grey.400' }} />
                 <Typography variant="body2" color="grey.300">
-                  support@homestayhub.vn
+                  homi@gmail.vn
                 </Typography>
               </Box>
             </Box>
@@ -162,10 +162,10 @@ const Footer = () => {
           }}
         >
           <Typography variant="body2" color="grey.400">
-            © 2024 Homestay Hub. Tất cả quyền được bảo lưu.
+            © 2025 Homi. Tất cả quyền được bảo lưu.
           </Typography>
           <Typography variant="body2" color="grey.400">
-            Được phát triển với ❤️ tại Việt Nam
+             ❤️ Design by TrumBeoo ❤️
           </Typography>
         </Box>
       </Container>

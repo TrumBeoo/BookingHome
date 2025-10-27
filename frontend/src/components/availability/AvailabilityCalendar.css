@@ -1,0 +1,135 @@
+.availability-calendar-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #1890ff;
+}
+
+.room-indicator {
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #666;
+}
+
+.calendar-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.stat-item.available {
+  color: #52c41a;
+}
+
+.stat-item.booked {
+  color: #ff4d4f;
+}
+
+.custom-calendar {
+  border: none;
+}
+
+.custom-calendar .ant-picker-calendar-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.calendar-cell-content {
+  height: 100%;
+  padding: 4px;
+  font-size: 12px;
+}
+
+.price-info {
+  font-size: 10px;
+  color: #1890ff;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.booking-info {
+  font-size: 10px;
+  color: #666;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+/* Custom calendar cell styles */
+.ant-picker-calendar-date-content {
+  height: 60px !important;
+}
+
+.ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-calendar-date {
+  border: 2px solid #1890ff;
+}
+
+.ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-calendar-date {
+  background: #e6f7ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .calendar-stats {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .calendar-legend {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .ant-picker-calendar-date-content {
+    height: 40px !important;
+  }
+  
+  .calendar-cell-content {
+    padding: 2px;
+    font-size: 10px;
+  }
+  
+  .price-info {
+    font-size: 8px;
+  }
+  
+  .booking-info {
+    font-size: 8px;
+  }
+}

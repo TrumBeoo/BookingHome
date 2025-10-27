@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -16,6 +16,8 @@ import {
   useMediaQuery,
   Container,
   Badge,
+  Divider,
+  alpha,
 } from '@mui/material';
 import {
   Home,
@@ -29,6 +31,9 @@ import {
   Favorite,
   Help,
   Language,
+  Phone,
+  Email,
+  LocationOn,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
@@ -42,6 +47,17 @@ const Header = () => {
   
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 10;
+      setScrolled(isScrolled);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -61,9 +77,11 @@ const Header = () => {
   const publicMenuItems = [
     { label: 'Trang chủ', path: '/' },
     { label: 'Tìm homestay', path: '/search' },
+    { label: 'Loại phòng', path: '/room-categories' },
     { label: 'Địa điểm', path: '/destinations' },
-    { label: 'Về chúng tôi', path: '/about' },
+    { label: 'Blog', path: '/blog' },
     { label: 'Liên hệ', path: '/contact' },
+    { label: 'Về chúng tôi', path: '/about' },
   ];
 
   const MobileMenu = () => (
@@ -77,7 +95,7 @@ const Header = () => {
         <Box sx={{ px: 2, mb: 2, display: 'flex', alignItems: 'center' }}>
           <Home sx={{ mr: 1, color: 'primary.main', fontSize: 28 }} />
           <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
-            Homestay Hub
+            Homi
           </Typography>
         </Box>
 
@@ -192,54 +210,148 @@ const Header = () => {
 
   return (
     <>
+      {/* Top Contact Bar */}
+      {!isMobile && (
+        <Box
+          sx={{
+            bgcolor: 'primary.main',
+            color: 'white',
+            py: 1,
+            fontSize: '0.875rem',
+          }}
+        >
+          <Container maxWidth="xl">
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Phone sx={{ fontSize: 16 }} />
+                  <Typography variant="body2" sx={{ color: 'inherit' }}>
+                    0912345678
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Email sx={{ fontSize: 16 }} />
+                  <Typography variant="body2" sx={{ color: 'inherit' }}>
+                    homi@gmail.com
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body2" sx={{ color: 'inherit' }}>
+                  Phục vụ 24/24 - Đặt phòng homestay uy tín
+                </Typography>
+              </Box>
+            </Box>
+          </Container>
+        </Box>
+      )}
+
       <AppBar 
         position="sticky" 
-        elevation={0} 
+        elevation={scrolled ? 2 : 0}
         sx={{ 
-          bgcolor: 'background.paper', 
-          borderBottom: '1px solid',
-          borderColor: 'grey.200'
+          bgcolor: scrolled ? 'rgba(255, 255, 255, 0.95)' : 'background.paper',
+          backdropFilter: scrolled ? 'blur(20px)' : 'none',
+          borderBottom: scrolled ? 'none' : '1px solid',
+          borderColor: 'grey.200',
+          transition: 'all 0.3s ease',
         }}
       >
         <Container maxWidth="xl">
-          <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
+          <Toolbar sx={{ justifyContent: 'space-between', py: { xs: 1, md: 1.5 } }}>
             {/* Logo */}
             <Box 
               sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                cursor: 'pointer' 
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                },
               }}
               onClick={() => navigate('/')}
             >
-              <Home sx={{ mr: 1, color: 'primary.main', fontSize: 32 }} />
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'text.primary',
-                  fontSize: { xs: '1.1rem', md: '1.25rem' }
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '12px',
+                  bgcolor: 'primary.main',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mr: 2,
+                  background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
                 }}
               >
-                Homestay Hub
-              </Typography>
+                <Home sx={{ color: 'white', fontSize: 24 }} />
+              </Box>
+              <Box>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    fontWeight: 800, 
+                    color: 'text.primary',
+                    fontSize: { xs: '1.1rem', md: '1.3rem' },
+                    lineHeight: 1,
+                  }}
+                >
+                  Homi
+                </Typography>
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    color: 'text.secondary',
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                  }}
+                >
+                  Homestay
+                </Typography>
+              </Box>
             </Box>
 
             {/* Desktop Navigation */}
             {!isMobile && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 {publicMenuItems.map((item) => (
                   <Button
                     key={item.label}
                     color="inherit"
                     sx={{ 
                       color: 'text.primary',
-                      fontWeight: 500,
-                      px: 2,
+                      fontWeight: 600,
+                      px: 3,
+                      py: 1,
+                      borderRadius: 2,
+                      position: 'relative',
                       '&:hover': {
-                        bgcolor: 'primary.light',
-                        color: 'white',
-                      }
+                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        color: 'primary.main',
+                        transform: 'translateY(-1px)',
+                      },
+                      '&:before': {
+                        content: '""',
+                        position: 'absolute',
+                        bottom: 0,
+                        left: '50%',
+                        width: 0,
+                        height: '2px',
+                        bgcolor: 'primary.main',
+                        transition: 'all 0.3s ease',
+                        transform: 'translateX(-50%)',
+                      },
+                      '&:hover:before': {
+                        width: '80%',
+                      },
+                      transition: 'all 0.2s ease',
                     }}
                     onClick={() => navigate(item.path)}
                   >
@@ -250,23 +362,29 @@ const Header = () => {
             )}
 
             {/* User Actions */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {/* Host Your Home - Always visible */}
-              {!isMobile && (
+              {/*{!isMobile && (
                 <Button
                   variant="text"
                   sx={{ 
                     color: 'text.primary',
                     fontWeight: 600,
+                    px: 2,
+                    py: 1,
+                    borderRadius: 2,
                     '&:hover': {
-                      bgcolor: 'grey.100',
-                    }
+                      bgcolor: alpha(theme.palette.secondary.main, 0.08),
+                      color: 'secondary.main',
+                      transform: 'translateY(-1px)',
+                    },
+                    transition: 'all 0.2s ease',
                   }}
                   onClick={() => navigate('/host')}
                 >
-                  Cho thuê nhà
+                  Cho thuê homestay
                 </Button>
-              )}
+              )}*/}
 
               {!isAuthenticated ? (
                 !isMobile ? (
@@ -278,10 +396,17 @@ const Header = () => {
                       sx={{ 
                         color: 'text.primary', 
                         borderColor: 'grey.300',
+                        borderRadius: 2,
+                        px: 3,
+                        py: 1,
+                        fontWeight: 600,
                         '&:hover': {
                           borderColor: 'primary.main',
                           color: 'primary.main',
-                        }
+                          bgcolor: alpha(theme.palette.primary.main, 0.04),
+                          transform: 'translateY(-1px)',
+                        },
+                        transition: 'all 0.2s ease',
                       }}
                     >
                       Đăng nhập
@@ -291,10 +416,16 @@ const Header = () => {
                       startIcon={<PersonAdd />}
                       onClick={() => navigate('/signup')}
                       sx={{
-                        boxShadow: 'none',
+                        px: 3,
+                        py: 1,
+                        fontWeight: 600,
+                        borderRadius: 2,
+                        background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
                         '&:hover': {
-                          boxShadow: '0 4px 12px rgba(46, 125, 50, 0.3)',
-                        }
+                          background: 'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',
+                          transform: 'translateY(-1px)',
+                        },
+                        transition: 'all 0.2s ease',
                       }}
                     >
                       Đăng ký
@@ -306,7 +437,15 @@ const Header = () => {
                   {/* Notifications for authenticated users */}
                   {!isMobile && (
                     <>
-                      <IconButton sx={{ color: 'text.primary' }}>
+                      <IconButton 
+                        sx={{ 
+                          color: 'text.primary',
+                          '&:hover': {
+                            bgcolor: alpha(theme.palette.error.main, 0.08),
+                            color: 'error.main',
+                          },
+                        }}
+                      >
                         <Badge badgeContent={2} color="error">
                           <Favorite />
                         </Badge>
@@ -316,9 +455,22 @@ const Header = () => {
                   )}
                   <IconButton
                     onClick={handleProfileMenuOpen}
-                    sx={{ color: 'text.primary' }}
+                    sx={{ 
+                      color: 'text.primary',
+                      '&:hover': {
+                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                      },
+                    }}
                   >
-                    <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
+                    <Avatar 
+                      sx={{ 
+                        width: 36, 
+                        height: 36, 
+                        bgcolor: 'primary.main',
+                        background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                        fontWeight: 600,
+                      }}
+                    >
                       {user?.full_name?.charAt(0).toUpperCase()}
                     </Avatar>
                   </IconButton>
@@ -329,7 +481,12 @@ const Header = () => {
               {isMobile && (
                 <IconButton
                   onClick={() => setMobileMenuOpen(true)}
-                  sx={{ color: 'text.primary' }}
+                  sx={{ 
+                    color: 'text.primary',
+                    '&:hover': {
+                      bgcolor: alpha(theme.palette.primary.main, 0.08),
+                    },
+                  }}
                 >
                   <MenuIcon />
                 </IconButton>
@@ -353,14 +510,6 @@ const Header = () => {
         <MenuItem onClick={() => { navigate('/profile'); handleProfileMenuClose(); }}>
           <AccountCircle sx={{ mr: 2 }} />
           Hồ sơ của tôi
-        </MenuItem>
-        <MenuItem onClick={() => { navigate('/bookings'); handleProfileMenuClose(); }}>
-          <Search sx={{ mr: 2 }} />
-          Đặt phòng của tôi
-        </MenuItem>
-        <MenuItem onClick={() => { navigate('/favorites'); handleProfileMenuClose(); }}>
-          <Favorite sx={{ mr: 2 }} />
-          Yêu thích
         </MenuItem>
         <MenuItem onClick={() => { navigate('/dashboard'); handleProfileMenuClose(); }}>
           <Dashboard sx={{ mr: 2 }} />

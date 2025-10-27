@@ -1,47 +1,109 @@
-import axios from 'axios';
+import { getToken, removeToken, isTokenExpired } from './tokenUtils';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    try {
-      const token = localStorage.getItem('access_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } catch (error) {
-      console.error('Failed to get token from storage:', error);
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor to handle auth errors
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      try {
-        localStorage.removeItem('access_token');
-        // Only redirect if not already on login page
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
-      } catch (storageError) {
-        console.error('Failed to handle auth error:', storageError);
-      }
-    }
-    return Promise.reject(error);
+class ApiService {
+  constructor() {
+    this.baseURL = API_BASE_URL;
   }
-);
 
-export default api;
+  async request(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    const token = getToken();
+    
+    if (token && isTokenExpired(token)) {
+      removeToken();
+      const authPages = ['/login', '/register'];
+      if (!authPages.includes(window.location.pathname)) {
+        sessionStorage.setItem('redirectPath', window.location.pathname);
+        window.location.href = '/login';
+      }
+      throw new Error('Token đã hết hạn');
+    }
+    
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    try {
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        if (response.status === 401) {
+          removeToken();
+          const authPages = ['/login', '/register'];
+          if (!authPages.includes(window.location.pathname)) {
+            sessionStorage.setItem('redirectPath', window.location.pathname);
+            window.location.href = '/login';
+          }
+        }
+        
+        throw new Error(errorData.detail || errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      if (!error.message.includes('HTTP error')) {
+        error.message = 'Không thể kết nối đến máy chủ';
+      }
+      throw error;
+    }
+  }
+
+  // Homestay methods
+  async getHomestays(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/homestays/${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getFeaturedHomestays(limit = 6) {
+    return this.request(`/homestays/featured/list?limit=${limit}`);
+  }
+
+  async getHomestay(id) {
+    return this.request(`/homestays/${id}`);
+  }
+
+  // Booking methods
+  async createBooking(bookingData) {
+    return this.request('/bookings', {
+      method: 'POST',
+      body: JSON.stringify(bookingData),
+    });
+  }
+
+  async getUserBookings() {
+    return this.request('/bookings/user');
+  }
+
+  // Payment methods
+  async createMoMoPayment(bookingId) {
+    return this.request('/payments/momo/create', {
+      method: 'POST',
+      body: JSON.stringify({ booking_id: bookingId }),
+    });
+  }
+
+  async checkMoMoPaymentStatus(paymentId) {
+    return this.request(`/payments/momo/status/${paymentId}`);
+  }
+
+  async getPaymentMethods() {
+    return this.request('/payments/methods');
+  }
+
+  // Location methods
+  async getLocations() {
+    return this.request('/locations');
+  }
+}
+
+export default new ApiService();
+export { API_BASE_URL };

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -37,13 +38,24 @@ import { DataGrid } from '@mui/x-data-grid';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
 const Bookings = () => {
+  const location = useLocation();
   const [tabValue, setTabValue] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [homestayFilter, setHomestayFilter] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [actionType, setActionType] = useState('');
+
+  // Handle query parameters
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const homestayId = searchParams.get('homestay');
+    if (homestayId) {
+      setHomestayFilter(homestayId);
+    }
+  }, [location.search]);
 
   const bookings = [
     {
@@ -325,7 +337,8 @@ const Bookings = () => {
     const matchesSearch = booking.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.property.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.id.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesTab && matchesSearch;
+    const matchesHomestay = !homestayFilter || booking.homestayId === homestayFilter;
+    return matchesTab && matchesSearch && matchesHomestay;
   });
 
   return (

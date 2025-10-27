@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/authService';
 import { AUTH_ERRORS } from '../constants/auth';
 
-export const useAuth = () => {
+export const useAuthHook = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

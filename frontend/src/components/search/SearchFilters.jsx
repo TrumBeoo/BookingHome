@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Card,
-  CardContent,
   Typography,
   Box,
   Slider,
@@ -9,10 +7,8 @@ import {
   FormControlLabel,
   Checkbox,
   Button,
-  Divider,
   Rating,
   Chip,
-  IconButton,
 } from '@mui/material';
 import {
   Wifi,
@@ -78,30 +74,60 @@ const SearchFilters = () => {
     priceRange[1] !== 5000000;
 
   return (
-    <Card sx={{ position: 'sticky', top: 100 }}>
-      <CardContent>
-        {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Bộ lọc
-          </Typography>
-          {hasActiveFilters && (
-            <Button
-              size="small"
-              onClick={clearAllFilters}
-              startIcon={<Clear />}
-              sx={{ color: 'text.secondary' }}
-            >
-              Xóa tất cả
-            </Button>
-          )}
-        </Box>
+    <div style={{
+      position: 'sticky',
+      top: '100px',
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+      padding: '24px',
+      fontFamily: 'Roboto, sans-serif'
+    }}>
+      {/* Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '24px' 
+      }}>
+        <h3 style={{
+          fontWeight: 700,
+          fontSize: '1.5rem',
+          color: '#212121',
+          margin: 0,
+          fontFamily: 'Roboto, sans-serif'
+        }}>
+          Bộ lọc tìm kiếm
+        </h3>
+        {hasActiveFilters && (
+          <Button
+            size="small"
+            onClick={clearAllFilters}
+            startIcon={<Clear />}
+            sx={{ 
+              color: '#757575',
+              '&:hover': {
+                backgroundColor: '#f5f5f5'
+              }
+            }}
+          >
+            Xóa tất cả
+          </Button>
+        )}
+      </div>
 
-        {/* Price Range */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-            Khoảng giá (VNĐ/đêm)
-          </Typography>
+      {/* Price Range */}
+      <div style={{ marginBottom: '32px' }}>
+        <h4 style={{
+          fontWeight: 600,
+          fontSize: '1.1rem',
+          color: '#212121',
+          marginBottom: '16px',
+          fontFamily: 'Roboto, sans-serif'
+        }}>
+          Khoảng giá (VNĐ/đêm)
+        </h4>
+        <Box sx={{ px: 1 }}>
           <Slider
             value={priceRange}
             onChange={(_, newValue) => setPriceRange(newValue)}
@@ -110,114 +136,214 @@ const SearchFilters = () => {
             max={10000000}
             step={100000}
             valueLabelFormat={(value) => `${(value / 1000000).toFixed(1)}M`}
-            sx={{ mb: 2 }}
+            sx={{ 
+              mb: 2,
+              color: '#1976d2',
+              '& .MuiSlider-thumb': {
+                backgroundColor: '#1976d2',
+              },
+              '& .MuiSlider-track': {
+                backgroundColor: '#1976d2',
+              },
+              '& .MuiSlider-rail': {
+                backgroundColor: '#e0e0e0',
+              }
+            }}
           />
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="body2" color="text.secondary">
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ 
+              fontSize: '0.875rem', 
+              color: '#757575',
+              fontFamily: 'Roboto, sans-serif'
+            }}>
               {(priceRange[0] / 1000000).toFixed(1)}M đ
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-            {(priceRange[1] / 1000000).toFixed(1)}M đ
-            </Typography>
-          </Box>
+            </span>
+            <span style={{ 
+              fontSize: '0.875rem', 
+              color: '#757575',
+              fontFamily: 'Roboto, sans-serif'
+            }}>
+              {(priceRange[1] / 1000000).toFixed(1)}M đ
+            </span>
+          </div>
         </Box>
+      </div>
 
-        <Divider sx={{ my: 3 }} />
+      {/* Property Types */}
+      <div style={{ marginBottom: '32px' }}>
+        <h4 style={{
+          fontWeight: 600,
+          fontSize: '1.1rem',
+          color: '#212121',
+          marginBottom: '16px',
+          fontFamily: 'Roboto, sans-serif'
+        }}>
+          Loại hình lưu trú
+        </h4>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {propertyTypeOptions.map((type) => (
+            <Chip
+              key={type}
+              label={type}
+              onClick={() => handlePropertyTypeChange(type)}
+              color={propertyTypes.includes(type) ? 'primary' : 'default'}
+              variant={propertyTypes.includes(type) ? 'filled' : 'outlined'}
+              sx={{ 
+                marginBottom: '8px',
+                fontFamily: 'Roboto, sans-serif',
+                '&:hover': {
+                  backgroundColor: propertyTypes.includes(type) ? '#1565c0' : '#f5f5f5'
+                }
+              }}
+            />
+          ))}
+        </div>
+      </div>
 
-        {/* Property Types */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-            Loại hình lưu trú
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {propertyTypeOptions.map((type) => (
-              <Chip
-                key={type}
-                label={type}
-                onClick={() => handlePropertyTypeChange(type)}
-                color={propertyTypes.includes(type) ? 'primary' : 'default'}
-                variant={propertyTypes.includes(type) ? 'filled' : 'outlined'}
-                sx={{ mb: 1 }}
+      {/* Rating */}
+      <div style={{ marginBottom: '32px' }}>
+        <h4 style={{
+          fontWeight: 600,
+          fontSize: '1.1rem',
+          color: '#212121',
+          marginBottom: '16px',
+          fontFamily: 'Roboto, sans-serif'
+        }}>
+          Đánh giá tối thiểu
+        </h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {[4.5, 4.0, 3.5, 3.0].map((rating) => (
+            <div
+              key={rating}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+                padding: '12px',
+                borderRadius: '8px',
+                backgroundColor: minRating === rating ? '#1976d2' : 'transparent',
+                color: minRating === rating ? 'white' : '#212121',
+                transition: 'all 0.3s ease',
+                fontFamily: 'Roboto, sans-serif'
+              }}
+              onClick={() => setMinRating(minRating === rating ? 0 : rating)}
+              onMouseEnter={(e) => {
+                if (minRating !== rating) {
+                  e.target.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (minRating !== rating) {
+                  e.target.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <Rating 
+                value={rating} 
+                readOnly 
+                size="small" 
+                sx={{ 
+                  mr: 1,
+                  '& .MuiRating-iconFilled': {
+                    color: minRating === rating ? 'white' : '#ffc107'
+                  }
+                }} 
               />
-            ))}
-          </Box>
-        </Box>
+              <span style={{ fontSize: '0.875rem' }}>
+                {rating} sao trở lên
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
 
-        <Divider sx={{ my: 3 }} />
-
-        {/* Rating */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-            Đánh giá tối thiểu
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {[4.5, 4.0, 3.5, 3.0].map((rating) => (
-              <Box
-                key={rating}
-                sx={{
-                  display: 'flex',
+      {/* Amenities */}
+      <div style={{ marginBottom: '32px' }}>
+        <h4 style={{
+          fontWeight: 600,
+          fontSize: '1.1rem',
+          color: '#212121',
+          marginBottom: '16px',
+          fontFamily: 'Roboto, sans-serif'
+        }}>
+          Tiện nghi
+        </h4>
+        <FormGroup>
+          {amenities.map((amenity) => (
+            <FormControlLabel
+              key={amenity.id}
+              control={
+                <Checkbox
+                  checked={selectedAmenities.includes(amenity.id)}
+                  onChange={() => handleAmenityChange(amenity.id)}
+                  color="primary"
+                  sx={{
+                    '&.Mui-checked': {
+                      color: '#1976d2'
+                    }
+                  }}
+                />
+              }
+              label={
+                <div style={{ 
+                  display: 'flex', 
                   alignItems: 'center',
-                  cursor: 'pointer',
-                  p: 1,
-                  borderRadius: 1,
-                  bgcolor: minRating === rating ? 'primary.light' : 'transparent',
-                  color: minRating === rating ? 'white' : 'inherit',
-                  '&:hover': {
-                    bgcolor: minRating === rating ? 'primary.main' : 'grey.100',
-                  },
-                }}
-                onClick={() => setMinRating(minRating === rating ? 0 : rating)}
-              >
-                <Rating value={rating} readOnly size="small" sx={{ mr: 1 }} />
-                <Typography variant="body2">
-                  {rating} sao trở lên
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        </Box>
-
-        <Divider sx={{ my: 3 }} />
-
-        {/* Amenities */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-            Tiện nghi
-          </Typography>
-          <FormGroup>
-            {amenities.map((amenity) => (
-              <FormControlLabel
-                key={amenity.id}
-                control={
-                  <Checkbox
-                    checked={selectedAmenities.includes(amenity.id)}
-                    onChange={() => handleAmenityChange(amenity.id)}
-                    color="primary"
-                  />
-                }
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ mr: 1, color: 'text.secondary' }}>
-                      {amenity.icon}
-                    </Box>
+                  fontFamily: 'Roboto, sans-serif'
+                }}>
+                  <div style={{ 
+                    marginRight: '8px', 
+                    color: '#757575',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}>
+                    {amenity.icon}
+                  </div>
+                  <span style={{ fontSize: '0.875rem' }}>
                     {amenity.label}
-                  </Box>
+                  </span>
+                </div>
+              }
+              sx={{
+                marginBottom: '4px',
+                '& .MuiFormControlLabel-label': {
+                  fontSize: '0.875rem'
                 }
-              />
-            ))}
-          </FormGroup>
-        </Box>
+              }}
+            />
+          ))}
+        </FormGroup>
+      </div>
 
-        {/* Apply Filters Button */}
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{ mt: 2 }}
-        >
-          Áp dụng bộ lọc
-        </Button>
-      </CardContent>
-    </Card>
+      {/* Apply Filters Button */}
+      <button
+        style={{
+          width: '100%',
+          padding: '12px 24px',
+          backgroundColor: '#1976d2',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          fontSize: '1rem',
+          fontWeight: 600,
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          fontFamily: 'Roboto, sans-serif',
+          marginTop: '16px'
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = '#1565c0';
+          e.target.style.transform = 'translateY(-2px)';
+          e.target.style.boxShadow = '0 4px 12px rgba(25, 118, 210, 0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = '#1976d2';
+          e.target.style.transform = 'translateY(0)';
+          e.target.style.boxShadow = 'none';
+        }}
+      >
+        Áp dụng bộ lọc
+      </button>
+    </div>
   );
 };
 

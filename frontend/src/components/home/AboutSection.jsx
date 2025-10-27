@@ -1,14 +1,5 @@
 import React from 'react';
 import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  Avatar,
-} from '@mui/material';
-import {
   Security,
   SupportAgent,
   Verified,
@@ -40,157 +31,166 @@ const AboutSection = () => {
   ];
 
   return (
-    <Box sx={{ bgcolor: 'grey.50', py: 8 }}>
-      <Container maxWidth="lg">
-        <Box textAlign="center" sx={{ mb: 6 }}>
-          <Typography
-            variant="h2"
-            sx={{
-              mb: 2,
-              fontWeight: 700,
-              color: 'text.primary',
-            }}
-          >
-            Tại sao chọn Homestay Hub?
-          </Typography>
-          <Typography
-            variant="h6"
-            sx={{
-              color: 'text.secondary',
-              maxWidth: 700,
-              mx: 'auto',
-            }}
-          >
+    <div style={{ backgroundColor: '#f5f5f5', padding: '64px 0' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <h2 style={{
+            marginBottom: '16px',
+            fontWeight: 700,
+            fontSize: '2.5rem',
+            color: '#212121',
+            fontFamily: 'Roboto, sans-serif'
+          }}>
+            Tại sao chọn Homi?
+          </h2>
+          <h6 style={{
+            color: '#757575',
+            maxWidth: '700px',
+            margin: '0 auto',
+            fontSize: '1.25rem',
+            fontWeight: 400,
+            lineHeight: 1.6,
+            fontFamily: 'Roboto, sans-serif'
+          }}>
             Chúng tôi cam kết mang đến cho bạn những trải nghiệm lưu trú tuyệt vời nhất
             với sự an tâm và tiện lợi tối đa
-          </Typography>
-        </Box>
+          </h6>
+        </div>
 
-        <Grid container spacing={4}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '32px' }}>
           {features.map((feature, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card
-                sx={{
+            <div key={index}>
+              <div
+                style={{
                   height: '100%',
                   textAlign: 'center',
-                  p: 3,
+                  padding: '24px',
                   border: 'none',
+                  borderRadius: '8px',
+                  backgroundColor: 'white',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                  '&:hover': {
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-                    transform: 'translateY(-4px)',
-                  },
                   transition: 'all 0.3s ease',
                 }}
+                onMouseEnter={(e) => {
+                  e.target.style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)';
+                  e.target.style.transform = 'translateY(-4px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
+                  e.target.style.transform = 'translateY(0)';
+                }}
               >
-                <Avatar
-                  sx={{
-                    bgcolor: 'primary.main',
-                    width: 64,
-                    height: 64,
-                    mx: 'auto',
-                    mb: 3,
-                    fontSize: 28,
+                <div
+                  style={{
+                    backgroundColor: '#1976d2',
+                    width: '64px',
+                    height: '64px',
+                    margin: '0 auto 24px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '28px',
                   }}
                 >
                   {feature.icon}
-                </Avatar>
+                </div>
                 
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 600,
-                    mb: 2,
-                    color: 'text.primary',
-                  }}
-                >
+                <h6 style={{
+                  fontWeight: 600,
+                  marginBottom: '16px',
+                  color: '#212121',
+                  fontSize: '1.25rem',
+                  fontFamily: 'Roboto, sans-serif'
+                }}>
                   {feature.title}
-                </Typography>
+                </h6>
                 
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: 'text.secondary',
-                    lineHeight: 1.6,
-                  }}
-                >
+                <p style={{
+                  color: '#757575',
+                  lineHeight: 1.6,
+                  margin: 0,
+                  fontSize: '1rem',
+                  fontFamily: 'Roboto, sans-serif'
+                }}>
                   {feature.description}
-                </Typography>
-              </Card>
-            </Grid>
+                </p>
+              </div>
+            </div>
           ))}
-        </Grid>
+        </div>
 
         {/* Statistics */}
-        <Box sx={{ mt: 8 }}>
-          <Grid container spacing={4} justifyContent="center">
-            <Grid item xs={6} md={3} textAlign="center">
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  color: 'primary.main',
-                  mb: 1,
-                }}
-              >
+        <div style={{ marginTop: '64px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '32px', justifyItems: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{
+                fontWeight: 700,
+                color: '#1976d2',
+                marginBottom: '8px',
+                fontSize: '3rem',
+                margin: '0 0 8px 0',
+                fontFamily: 'Roboto, sans-serif'
+              }}>
                 10K+
-              </Typography>
-              <Typography variant="h6" color="text.secondary">
+              </h3>
+              <h6 style={{ color: '#757575', fontSize: '1.25rem', fontWeight: 400, margin: 0, fontFamily: 'Roboto, sans-serif' }}>
                 Homestay
-              </Typography>
-            </Grid>
+              </h6>
+            </div>
             
-            <Grid item xs={6} md={3} textAlign="center">
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  color: 'primary.main',
-                  mb: 1,
-                }}
-              >
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{
+                fontWeight: 700,
+                color: '#1976d2',
+                marginBottom: '8px',
+                fontSize: '3rem',
+                margin: '0 0 8px 0',
+                fontFamily: 'Roboto, sans-serif'
+              }}>
                 50K+
-              </Typography>
-              <Typography variant="h6" color="text.secondary">
+              </h3>
+              <h6 style={{ color: '#757575', fontSize: '1.25rem', fontWeight: 400, margin: 0, fontFamily: 'Roboto, sans-serif' }}>
                 Khách hàng
-              </Typography>
-            </Grid>
+              </h6>
+            </div>
             
-            <Grid item xs={6} md={3} textAlign="center">
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  color: 'primary.main',
-                  mb: 1,
-                }}
-              >
-                4.9★
-              </Typography>
-              <Typography variant="h6" color="text.secondary">
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{
+                fontWeight: 700,
+                color: '#1976d2',
+                marginBottom: '8px',
+                fontSize: '3rem',
+                margin: '0 0 8px 0',
+                fontFamily: 'Roboto, sans-serif'
+              }}>
+                5.0★
+              </h3>
+              <h6 style={{ color: '#757575', fontSize: '1.25rem', fontWeight: 400, margin: 0, fontFamily: 'Roboto, sans-serif' }}>
                 Đánh giá
-              </Typography>
-            </Grid>
+              </h6>
+            </div>
             
-            <Grid item xs={6} md={3} textAlign="center">
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  color: 'primary.main',
-                  mb: 1,
-                }}
-              >
-                63
-              </Typography>
-              <Typography variant="h6" color="text.secondary">
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{
+                fontWeight: 700,
+                color: '#1976d2',
+                marginBottom: '8px',
+                fontSize: '3rem',
+                margin: '0 0 8px 0',
+                fontFamily: 'Roboto, sans-serif'
+              }}>
+                34
+              </h3>
+              <h6 style={{ color: '#757575', fontSize: '1.25rem', fontWeight: 400, margin: 0, fontFamily: 'Roboto, sans-serif' }}>
                 Tỉnh thành
-              </Typography>
-            </Grid>
-          </Grid>
-        </Box>
-      </Container>
-    </Box>
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

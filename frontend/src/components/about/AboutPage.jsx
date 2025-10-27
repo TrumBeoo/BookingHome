@@ -1,49 +1,29 @@
 import React from 'react';
-import {
-  Container,
-  Typography,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Avatar,
-  Paper,
-} from '@mui/material';
-import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from "@mui/lab";
-import {
-  EmojiEvents,
-  Groups,
-  LocationOn,
-  Star,
-  TrendingUp,
-  Security,
-  SupportAgent,
-  Verified,
-} from '@mui/icons-material';
 import Layout from '../common/Layout';
+import './AboutPage.css';
 
 const AboutPage = () => {
   const teamMembers = [
     {
-      name: 'Nguyễn Văn Minh',
+      name: 'Trịnh Xuân Trung',
       position: 'Founder & CEO',
       description: 'Hơn 10 năm kinh nghiệm trong lĩnh vực du lịch và công nghệ',
       avatar: 'M',
     },
     {
-      name: 'Trần Thị Lan',
+      name: 'Trần Thị B',
       position: 'Head of Operations',
       description: 'Chuyên gia về quản lý chất lượng dịch vụ và trải nghiệm khách hàng',
       avatar: 'L',
     },
     {
-      name: 'Lê Đức Thắng',
+      name: 'Lê Đức C',
       position: 'Head of Technology',
       description: 'Kiến trúc sư phần mềm với đam mê xây dựng sản phẩm công nghệ',
       avatar: 'T',
     },
     {
-      name: 'Phạm Thị Hương',
+      name: 'Phạm Thị H',
       position: 'Head of Marketing',
       description: 'Chuyên gia marketing số với kinh nghiệm phát triển thương hiệu',
       avatar: 'H',
@@ -80,22 +60,22 @@ const AboutPage = () => {
 
   const achievements = [
     {
-      icon: <Groups />,
+      icon: '👥',
       number: '100K+',
       label: 'Khách hàng hài lòng',
     },
     {
-      icon: <LocationOn />,
+      icon: '📍',
       number: '10K+',
       label: 'Homestay chất lượng',
     },
     {
-      icon: <Star />,
-      number: '4.9★',
+      icon: '⭐',
+      number: '5.0★',
       label: 'Đánh giá trung bình',
     },
     {
-      icon: <EmojiEvents />,
+      icon: '🏆',
       number: '50+',
       label: 'Giải thưởng',
     },
@@ -103,22 +83,22 @@ const AboutPage = () => {
 
   const values = [
     {
-      icon: <Security />,
+      icon: '🔒',
       title: 'An toàn & Tin cậy',
       description: 'Cam kết bảo vệ thông tin và tài sản của khách hàng với công nghệ bảo mật tiên tiến',
     },
     {
-      icon: <Verified />,
+      icon: '✅',
       title: 'Chất lượng đảm bảo',
       description: 'Mọi homestay đều được kiểm duyệt kỹ lưỡng để đảm bảo chất lượng dịch vụ tốt nhất',
     },
     {
-      icon: <SupportAgent />,
+      icon: '🎧',
       title: 'Hỗ trợ 24/7',
       description: 'Đội ngũ chăm sóc khách hàng chuyên nghiệp luôn sẵn sàng hỗ trợ mọi lúc',
     },
     {
-      icon: <TrendingUp />,
+      icon: '📈',
       title: 'Đổi mới liên tục',
       description: 'Không ngừng cải tiến và phát triển để mang lại trải nghiệm tốt nhất',
     },
@@ -127,278 +107,421 @@ const AboutPage = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <Box
-        sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          py: 8,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box textAlign="center">
-            <Typography
-              variant="h2"
-              sx={{
-                fontWeight: 700,
-                mb: 3,
-                fontSize: { xs: '2rem', md: '3rem' },
-              }}
-            >
-              Về Homestay Hub
-            </Typography>
-            <Typography
-              variant="h5"
-              sx={{
-                opacity: 0.9,
-                maxWidth: 800,
-                mx: 'auto',
-                lineHeight: 1.6,
-              }}
-            >
+      <div className="hero-section" style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        padding: '64px 0',
+        position: 'relative',
+        overflow: 'hidden',
+        fontFamily: 'Roboto, sans-serif'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 24px'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{
+              fontWeight: 700,
+              marginBottom: '24px',
+              fontSize: 'clamp(2rem, 5vw, 3rem)',
+              margin: '0 0 24px 0'
+            }}>
+              Về Homi
+            </h1>
+            <p style={{
+              opacity: 0.9,
+              maxWidth: '800px',
+              margin: '0 auto',
+              lineHeight: 1.6,
+              fontSize: '1.25rem',
+              fontWeight: 400
+            }}>
               Chúng tôi tin rằng mỗi chuyến đi đều là một câu chuyện đáng nhớ. 
               Sứ mệnh của chúng tôi là kết nối du khách với những trải nghiệm 
               lưu trú độc đáo và chân thực nhất tại Việt Nam.
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
+            </p>
+          </div>
+        </div>
+      </div>
 
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        {/* Mission & Vision */}
-        <Grid container spacing={6} sx={{ mb: 8 }}>
-          <Grid item xs={12} md={6}>
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: 700, mb: 3, color: 'primary.main' }}
-            >
-              Sứ mệnh
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ fontSize: '1.1rem', lineHeight: 1.8, color: 'text.secondary' }}
-            >
-              Homestay Hub được thành lập với mục tiêu tạo ra một nền tảng kết nối 
-              tin cậy giữa du khách và các chủ nhà homestay. Chúng tôi muốn mang đến 
-              những trải nghiệm lưu trú chân thực, giúp du khách hiểu sâu hơn về 
-              văn hóa địa phương và tạo ra những kỷ niệm đáng nhớ.
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: 700, mb: 3, color: 'primary.main' }}
-            >
-              Tầm nhìn
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ fontSize: '1.1rem', lineHeight: 1.8, color: 'text.secondary' }}
-            >
-              Trở thành nền tảng đặt homestay hàng đầu Việt Nam, được biết đến với 
-              chất lượng dịch vụ xuất sắc và sự đa dạng về trải nghiệm. Chúng tôi 
-              hướng tới việc thúc đẩy du lịch bền vững và hỗ trợ cộng đồng địa phương 
-              phát triển kinh tế thông qua du lịch.
-            </Typography>
-          </Grid>
-        </Grid>
+      <div style={{
+        backgroundColor: '#f5f5f5',
+        padding: '64px 0',
+        fontFamily: 'Roboto, sans-serif'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 24px'
+        }}>
+          {/* Mission & Vision */}
+          <div className="mission-vision-grid" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+            gap: '48px',
+            marginBottom: '64px'
+          }}>
+            <div className="mission-card">
+              <h2 style={{
+                fontWeight: 700,
+                marginBottom: '24px',
+                color: '#1976d2',
+                fontSize: '2rem'
+              }}>
+                Sứ mệnh
+              </h2>
+              <p style={{
+                fontSize: '1.1rem',
+                lineHeight: 1.8,
+                color: '#757575',
+                margin: 0
+              }}>
+                Homestay Hub được thành lập với mục tiêu tạo ra một nền tảng kết nối 
+                tin cậy giữa du khách và các chủ nhà homestay. Chúng tôi muốn mang đến 
+                những trải nghiệm lưu trú chân thực, giúp du khách hiểu sâu hơn về 
+                văn hóa địa phương và tạo ra những kỷ niệm đáng nhớ.
+              </p>
+            </div>
+            <div className="vision-card">
+              <h2 style={{
+                fontWeight: 700,
+                marginBottom: '24px',
+                color: '#1976d2',
+                fontSize: '2rem'
+              }}>
+                Tầm nhìn
+              </h2>
+              <p style={{
+                fontSize: '1.1rem',
+                lineHeight: 1.8,
+                color: '#757575',
+                margin: 0
+              }}>
+                Trở thành nền tảng đặt homestay hàng đầu Việt Nam, được biết đến với 
+                chất lượng dịch vụ xuất sắc và sự đa dạng về trải nghiệm. Chúng tôi 
+                hướng tới việc thúc đẩy du lịch bền vững và hỗ trợ cộng đồng địa phương 
+                phát triển kinh tế thông qua du lịch.
+              </p>
+            </div>
+          </div>
 
-        {/* Achievements */}
-        <Box sx={{ mb: 8 }}>
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 700, textAlign: 'center', mb: 6 }}
-          >
-            Những Con Số Ấn Tượng
-          </Typography>
-          <Grid container spacing={4}>
-            {achievements.map((achievement, index) => (
-              <Grid item xs={6} md={3} key={index}>
-                <Box textAlign="center">
-                  <Avatar
-                    sx={{
-                      bgcolor: 'primary.main',
-                      width: 80,
-                      height: 80,
-                      mx: 'auto',
-                      mb: 2,
-                      fontSize: '2rem',
-                    }}
-                  >
+          {/* Achievements */}
+          <div style={{ marginBottom: '64px' }}>
+            <h2 style={{
+              fontWeight: 700,
+              textAlign: 'center',
+              marginBottom: '48px',
+              fontSize: '2rem',
+              color: '#212121'
+            }}>
+              Những Con Số Ấn Tượng
+            </h2>
+            <div className="achievements-grid" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '32px'
+            }}>
+              {achievements.map((achievement, index) => (
+                <div 
+                  key={index} 
+                  className="achievement-card"
+                  style={{
+                    textAlign: 'center',
+                    backgroundColor: 'white',
+                    padding: '32px 16px',
+                    borderRadius: '16px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-8px)';
+                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
+                  }}
+                >
+                  <div style={{
+                    backgroundColor: '#1976d2',
+                    width: '80px',
+                    height: '80px',
+                    margin: '0 auto 16px auto',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '2rem'
+                  }}>
                     {achievement.icon}
-                  </Avatar>
-                  <Typography
-                    variant="h3"
-                    sx={{ fontWeight: 700, color: 'primary.main', mb: 1 }}
-                  >
+                  </div>
+                  <div className="achievement-number" style={{
+                    fontWeight: 700,
+                    color: '#1976d2',
+                    marginBottom: '8px',
+                    fontSize: '2.5rem'
+                  }}>
                     {achievement.number}
-                  </Typography>
-                  <Typography variant="h6" color="text.secondary">
+                  </div>
+                  <div style={{
+                    color: '#757575',
+                    fontSize: '1.125rem',
+                    fontWeight: 500
+                  }}>
                     {achievement.label}
-                  </Typography>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        {/* Timeline */}
-        <Box sx={{ mb: 8 }}>
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 700, textAlign: 'center', mb: 6 }}
-          >
-            Hành Trình Phát Triển
-          </Typography>
-          <Timeline position="alternate">
-            {milestones.map((milestone, index) => (
-              <TimelineItem key={index}>
-                <TimelineSeparator>
-                  <TimelineDot
-                    sx={{
-                      bgcolor: 'primary.main',
-                      width: 16,
-                      height: 16,
-                    }}
-                  />
-                  {index < milestones.length - 1 && <TimelineConnector />}
-                </TimelineSeparator>
-                <TimelineContent sx={{ py: '12px', px: 2 }}>
-                  <Paper
-                    elevation={3}
-                    sx={{
-                      p: 3,
-                      bgcolor: index % 2 === 0 ? 'primary.light' : 'secondary.light',
-                      color: 'white',
-                    }}
-                  >
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+          {/* Timeline */}
+          <div style={{ marginBottom: '64px' }}>
+            <h2 style={{
+              fontWeight: 700,
+              textAlign: 'center',
+              marginBottom: '48px',
+              fontSize: '2rem',
+              color: '#212121'
+            }}>
+              Hành Trình Phát Triển
+            </h2>
+            <div className="timeline-container" style={{
+              position: 'relative',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }}>
+              {/* Timeline Line */}
+              <div className="timeline-line" style={{
+                position: 'absolute',
+                left: '50%',
+                top: '0',
+                bottom: '0',
+                width: '2px',
+                backgroundColor: '#1976d2',
+                transform: 'translateX(-50%)'
+              }}></div>
+              
+              {milestones.map((milestone, index) => (
+                <div 
+                  key={index} 
+                  className={`timeline-item ${index % 2 === 0 ? 'left' : 'right'}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '48px',
+                    position: 'relative'
+                  }}
+                >
+                  {/* Timeline Dot */}
+                  <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    width: '16px',
+                    height: '16px',
+                    backgroundColor: '#1976d2',
+                    borderRadius: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 2,
+                    border: '3px solid white',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }}></div>
+                  
+                  {/* Content */}
+                  <div style={{
+                    width: '45%',
+                    marginLeft: index % 2 === 0 ? '0' : '55%',
+                    backgroundColor: 'white',
+                    padding: '24px',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                    background: index % 2 === 0 
+                      ? 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)' 
+                      : 'linear-gradient(135deg, #ff5722 0%, #ff8a65 100%)',
+                    color: 'white'
+                  }}>
+                    <h3 style={{
+                      fontWeight: 700,
+                      marginBottom: '8px',
+                      fontSize: '1.25rem',
+                      margin: '0 0 8px 0'
+                    }}>
                       {milestone.year} - {milestone.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                    </h3>
+                    <p style={{
+                      opacity: 0.9,
+                      lineHeight: 1.6,
+                      margin: 0,
+                      fontSize: '0.875rem'
+                    }}>
                       {milestone.description}
-                    </Typography>
-                  </Paper>
-                </TimelineContent>
-              </TimelineItem>
-            ))}
-          </Timeline>
-        </Box>
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        {/* Values */}
-        <Box sx={{ mb: 8 }}>
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 700, textAlign: 'center', mb: 6 }}
-          >
-            Giá Trị Cốt Lõi
-          </Typography>
-          <Grid container spacing={4}>
-            {values.map((value, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <Card
-                  sx={{
+          {/* Values */}
+          <div style={{ marginBottom: '64px' }}>
+            <h2 style={{
+              fontWeight: 700,
+              textAlign: 'center',
+              marginBottom: '48px',
+              fontSize: '2rem',
+              color: '#212121'
+            }}>
+              Giá Trị Cốt Lõi
+            </h2>
+            <div className="values-grid" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '32px'
+            }}>
+              {values.map((value, index) => (
+                <div
+                  key={index}
+                  className="value-card"
+                  style={{
                     height: '100%',
                     textAlign: 'center',
-                    p: 2,
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-                    },
+                    padding: '32px 24px',
+                    backgroundColor: 'white',
+                    borderRadius: '16px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                     transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-8px)';
+                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
                   }}
                 >
-                  <Avatar
-                    sx={{
-                      bgcolor: 'primary.main',
-                      width: 64,
-                      height: 64,
-                      mx: 'auto',
-                      mb: 2,
-                    }}
-                  >
+                  <div style={{
+                    backgroundColor: '#1976d2',
+                    width: '64px',
+                    height: '64px',
+                    margin: '0 auto 16px auto',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.5rem'
+                  }}>
                     {value.icon}
-                  </Avatar>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 600, mb: 2 }}
-                  >
+                  </div>
+                  <h3 style={{
+                    fontWeight: 600,
+                    marginBottom: '16px',
+                    fontSize: '1.25rem',
+                    color: '#212121',
+                    margin: '0 0 16px 0'
+                  }}>
                     {value.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ lineHeight: 1.6 }}
-                  >
+                  </h3>
+                  <p style={{
+                    color: '#757575',
+                    lineHeight: 1.6,
+                    margin: 0,
+                    fontSize: '0.875rem'
+                  }}>
                     {value.description}
-                  </Typography>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        {/* Team */}
-        <Box>
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 700, textAlign: 'center', mb: 6 }}
-          >
-            Đội Ngũ Lãnh Đạo
-          </Typography>
-          <Grid container spacing={4}>
-            {teamMembers.map((member, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <Card
-                  sx={{
+          {/* Team */}
+          <div>
+            <h2 style={{
+              fontWeight: 700,
+              textAlign: 'center',
+              marginBottom: '48px',
+              fontSize: '2rem',
+              color: '#212121'
+            }}>
+              Đội Ngũ Lãnh Đạo
+            </h2>
+            <div className="team-grid" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '32px'
+            }}>
+              {teamMembers.map((member, index) => (
+                <div
+                  key={index}
+                  className="team-card"
+                  style={{
                     textAlign: 'center',
-                    p: 3,
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-                    },
+                    padding: '32px 24px',
+                    backgroundColor: 'white',
+                    borderRadius: '16px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                     transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-8px)';
+                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
                   }}
                 >
-                  <Avatar
-                    sx={{
-                      bgcolor: 'primary.main',
-                      width: 80,
-                      height: 80,
-                      mx: 'auto',
-                      mb: 2,
-                      fontSize: '1.8rem',
-                    }}
-                  >
+                  <div style={{
+                    backgroundColor: '#1976d2',
+                    width: '80px',
+                    height: '80px',
+                    margin: '0 auto 16px auto',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.8rem',
+                    color: 'white',
+                    fontWeight: 'bold'
+                  }}>
                     {member.avatar}
-                  </Avatar>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 600, mb: 1 }}
-                  >
+                  </div>
+                  <h3 style={{
+                    fontWeight: 600,
+                    marginBottom: '8px',
+                    fontSize: '1.25rem',
+                    color: '#212121',
+                    margin: '0 0 8px 0'
+                  }}>
                     {member.name}
-                  </Typography>
-                  <Typography
-                    variant="subtitle1"
-                    color="primary.main"
-                    sx={{ fontWeight: 600, mb: 2 }}
-                  >
+                  </h3>
+                  <div style={{
+                    color: '#1976d2',
+                    fontWeight: 600,
+                    marginBottom: '16px',
+                    fontSize: '1rem'
+                  }}>
                     {member.position}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ lineHeight: 1.5 }}
-                  >
+                  </div>
+                  <p style={{
+                    color: '#757575',
+                    lineHeight: 1.5,
+                    margin: 0,
+                    fontSize: '0.875rem'
+                  }}>
                     {member.description}
-                  </Typography>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      </Container>
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 };

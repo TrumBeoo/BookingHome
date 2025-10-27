@@ -1,0 +1,337 @@
+/* AboutPage.css */
+
+/* Grid Layouts */
+.mission-vision-grid {
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+.achievements-grid {
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.2s;
+}
+
+.values-grid {
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.4s;
+}
+
+.team-grid {
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.6s;
+}
+
+/* Card Animations */
+.achievement-card,
+.value-card,
+.team-card {
+  animation: slideInUp 0.6s ease forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.achievement-card:nth-child(1) { animation-delay: 0.1s; }
+.achievement-card:nth-child(2) { animation-delay: 0.2s; }
+.achievement-card:nth-child(3) { animation-delay: 0.3s; }
+.achievement-card:nth-child(4) { animation-delay: 0.4s; }
+
+.value-card:nth-child(1) { animation-delay: 0.1s; }
+.value-card:nth-child(2) { animation-delay: 0.2s; }
+.value-card:nth-child(3) { animation-delay: 0.3s; }
+.value-card:nth-child(4) { animation-delay: 0.4s; }
+
+.team-card:nth-child(1) { animation-delay: 0.1s; }
+.team-card:nth-child(2) { animation-delay: 0.2s; }
+.team-card:nth-child(3) { animation-delay: 0.3s; }
+.team-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Timeline Animations */
+.timeline-container {
+  animation: fadeIn 1s ease forwards;
+}
+
+.timeline-item {
+  animation: slideInFromSide 0.8s ease forwards;
+  opacity: 0;
+}
+
+.timeline-item.left {
+  transform: translateX(-50px);
+}
+
+.timeline-item.right {
+  transform: translateX(50px);
+}
+
+.timeline-item:nth-child(1) { animation-delay: 0.2s; }
+.timeline-item:nth-child(2) { animation-delay: 0.4s; }
+.timeline-item:nth-child(3) { animation-delay: 0.6s; }
+.timeline-item:nth-child(4) { animation-delay: 0.8s; }
+.timeline-item:nth-child(5) { animation-delay: 1.0s; }
+
+@keyframes slideInFromSide {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Hover Effects */
+.achievement-card:hover .achievement-icon,
+.value-card:hover .value-icon,
+.team-card:hover .team-avatar {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.achievement-card .achievement-icon,
+.value-card .value-icon,
+.team-card .team-avatar {
+  transition: transform 0.3s ease;
+}
+
+/* Timeline Responsive */
+@media (max-width: 768px) {
+  .timeline-container {
+    padding: 0 20px;
+  }
+  
+  .timeline-container::before {
+    left: 20px !important;
+  }
+  
+  .timeline-item {
+    margin-left: 40px !important;
+    margin-bottom: 30px !important;
+  }
+  
+  .timeline-item .timeline-content {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+  
+  .timeline-item .timeline-dot {
+    left: 20px !important;
+    transform: translateX(0) !important;
+  }
+}
+
+/* Grid Responsive Design */
+@media (max-width: 1024px) {
+  .mission-vision-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  
+  .achievements-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .values-grid,
+  .team-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .achievements-grid,
+  .values-grid,
+  .team-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  
+  .mission-vision-grid {
+    gap: 24px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .achievements-grid,
+  .values-grid,
+  .team-grid {
+    gap: 16px !important;
+  }
+  
+  .achievement-card,
+  .value-card,
+  .team-card {
+    padding: 24px 16px !important;
+  }
+}
+
+/* Hero Section Animation */
+.hero-section {
+  animation: heroFadeIn 1.2s ease forwards;
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Number Counter Animation */
+.achievement-number {
+  animation: countUp 2s ease forwards;
+}
+
+@keyframes countUp {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Icon Pulse Animation */
+.achievement-card:hover .achievement-icon,
+.value-card:hover .value-icon {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1976d2;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1565c0;
+}
+
+/* Focus States for Accessibility */
+.achievement-card:focus,
+.value-card:focus,
+.team-card:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .achievement-card,
+  .value-card,
+  .team-card {
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  
+  .timeline-item {
+    break-inside: avoid;
+  }
+}
+
+/* Loading Animation */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Text Selection */
+::selection {
+  background: rgba(25, 118, 210, 0.2);
+  color: #1976d2;
+}
+
+/* Mission and Vision Cards Special Effects */
+.mission-card,
+.vision-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.mission-card::before,
+.vision-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(25, 118, 210, 0.1), transparent);
+  transition: left 0.6s;
+}
+
+.mission-card:hover::before,
+.vision-card:hover::before {
+  left: 100%;
+}
+
+/* Timeline Line Animation */
+.timeline-line {
+  animation: drawLine 2s ease forwards;
+  transform-origin: top;
+  transform: scaleY(0);
+}
+
+@keyframes drawLine {
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Stagger Animation for Sections */
+.section-stagger-1 { animation-delay: 0.2s; }
+.section-stagger-2 { animation-delay: 0.4s; }
+.section-stagger-3 { animation-delay: 0.6s; }
+.section-stagger-4 { animation-delay: 0.8s; }

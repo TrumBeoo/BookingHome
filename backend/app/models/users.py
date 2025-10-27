@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum, BigInteger
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ..db import Base
 
@@ -18,3 +19,7 @@ class User(Base):
     remember_token = Column(String(100), nullable=True)
     created_at = Column(DateTime, nullable=True)
     updated_at = Column(DateTime, nullable=True)
+    
+    # Relationships
+    bookings = relationship("Booking", back_populates="user")
+    reviews = relationship("Review", back_populates="user")

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getToken, removeToken, isTokenExpired } from '../utils/tokenUtils';
 import { authService } from '../services/authService';
 
 const AuthContext = createContext();
@@ -13,47 +14,94 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = async () => {
-      if (authService.isAuthenticated()) {
-        try {
-          const userData = await authService.getCurrentUser();
-          setUser(userData);
-        } catch (error) {
-          authService.logout();
+    const checkAuth = async () => {
+      const token = getToken();
+      
+      if (token) {
+        if (isTokenExpired(token)) {
+          removeToken();
+          setIsAuthenticated(false);
+          setUser(null);
+        } else {
+          try {
+            const userData = await authService.getCurrentUser();
+            setUser(userData);
+            setIsAuthenticated(true);
+          } catch (error) {
+            console.error('Auth check failed:', error);
+            removeToken();
+            setIsAuthenticated(false);
+            setUser(null);
+          }
         }
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
       }
       setLoading(false);
     };
 
-    initAuth();
+    checkAuth();
   }, []);
 
   const login = async (email, password) => {
-    const response = await authService.login(email, password);
-    const userData = await authService.getCurrentUser();
-    setUser(userData);
-    return response;
+    try {
+      const response = await authService.login(email, password);
+      if (response.access_token) {
+        const userData = await authService.getCurrentUser();
+        setUser(userData);
+        setIsAuthenticated(true);
+        
+        // Handle redirect after successful login
+        const redirectPath = sessionStorage.getItem('redirectPath');
+        if (redirectPath) {
+          sessionStorage.removeItem('redirectPath');
+          window.location.href = redirectPath;
+        }
+      }
+      return response;
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    }
   };
 
   const register = async (userData) => {
-    return await authService.register(userData);
+    try {
+      return await authService.register(userData);
+    } catch (error) {
+      console.error('Registration failed:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
-    authService.logout();
-    setUser(null);
+    try {
+      removeToken();
+      setUser(null);
+      setIsAuthenticated(false);
+      sessionStorage.removeItem('redirectPath');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  const updateUser = (userData) => {
+    setUser(userData);
   };
 
   const value = {
     user,
+    isAuthenticated,
     login,
     register,
     logout,
-    loading,
-    isAuthenticated: !!user
+    updateUser,
+    loading
   };
 
   return (
