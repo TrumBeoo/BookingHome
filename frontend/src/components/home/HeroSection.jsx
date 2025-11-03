@@ -24,6 +24,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
+import PromoBanner from '../banner/PromoBanner';
 
 
 const HeroSection = () => {
@@ -311,6 +312,11 @@ const HeroSection = () => {
         {/* Search Bar */}
         <Box sx={{ mt: 8 }}>
           <SearchBar />
+        </Box>
+        
+        {/* Promo Banner */}
+        <Box sx={{ mt: 3 }}>
+          <PromoBanner position="home_below_search" />
         </Box>
       </Container>
 

@@ -3,6 +3,7 @@ import { Box } from '@mui/material';
 import Header from './Header';
 import Footer from './Footer';
 import ScrollToTop from './ScrollToTop';
+import FloatingPromo from '../banner/FloatingPromo';
 
 const Layout = ({ children }) => {
   return (
@@ -13,6 +14,7 @@ const Layout = ({ children }) => {
       </Box>
       <Footer />
       <ScrollToTop />
+      <FloatingPromo />
     </Box>
   );
 };

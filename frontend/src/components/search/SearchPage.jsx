@@ -25,6 +25,8 @@ import {
 
 import Layout from '../common/Layout';
 import SearchFilters from './SearchFilters';
+import PromoBanner from '../banner/PromoBanner';
+import SidebarPopup from '../banner/SidebarPopup';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../utils/api';
@@ -258,6 +260,7 @@ const SearchPage = () => {
 
             {/* Results */}
             <div className="search-results" style={{ flex: 1 }}>
+              <PromoBanner position="listing_top" />
               {/* Header */}
               <div className="search-header" style={{ marginBottom: '32px' }}>
                 <h1 style={{
@@ -616,6 +619,9 @@ const SearchPage = () => {
 
       {/* Login Dialog */}
       <LoginDialog />
+      
+      {/* Sidebar Popup */}
+      <SidebarPopup />
 
     </Layout>
   );

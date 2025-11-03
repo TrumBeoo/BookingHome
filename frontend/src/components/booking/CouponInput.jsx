@@ -170,7 +170,7 @@ const CouponInput = ({
       {/* Hiển thị gợi ý mã giảm giá */}
       <Box sx={{ mt: 2 }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          Mã giảm giá phổ biến:
+          Mã giảm giá có sẵn:
         </Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {['WELCOME10', 'SUMMER20', 'WEEKEND15', 'AUTUMN30', 'COMBO3N2D'].map((code) => (
@@ -199,12 +199,14 @@ const CouponInput = ({
           border: '1px solid #ffb74d'
         }}>
           <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#f57c00', mb: 1 }}>
-            🎉 Ưu đãi đặc biệt hôm nay!
+            🎉 Ưu đãi đặc biệt!
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            • Giảm 30% cho đơn hàng trên 2.000.000đ - Mã: AUTUMN30<br/>
-            • Combo cuối tuần giảm 20% - Mã: WEEKEND20<br/>
-            • Đặt 3 đêm giảm 33% - Mã: COMBO3N2D
+            • WELCOME10: Giảm 10% (đơn từ 500k, tối đa 200k)<br/>
+            • SUMMER20: Giảm 20% (đơn từ 1tr, tối đa 500k)<br/>
+            • WEEKEND15: Giảm 15% (đơn từ 500k, tối đa 300k)<br/>
+            • AUTUMN30: Giảm 30% (đơn từ 2tr, tối đa 1tr)<br/>
+            • COMBO3N2D: Giảm 500k (đơn từ 1.5tr)
           </Typography>
         </Box>
       </Box>

@@ -7,6 +7,33 @@ from app.models import Homestay, Category, Review, User, Destination
 
 router = APIRouter(prefix="/homestays", tags=["homestays"])
 
+@router.get("/{homestay_id}/directions")
+async def get_directions(
+    homestay_id: int,
+    db: Session = Depends(get_db)
+):
+    """Lấy thông tin chỉ đường đến homestay"""
+    
+    homestay = db.query(Homestay).filter(Homestay.id == homestay_id).first()
+    
+    if not homestay:
+        raise HTTPException(status_code=404, detail="Không tìm thấy homestay")
+    
+    if not homestay.latitude or not homestay.longitude:
+        raise HTTPException(status_code=400, detail="Homestay chưa có thông tin tọa độ")
+    
+    lat = float(homestay.latitude)
+    lng = float(homestay.longitude)
+    
+    return {
+        "homestay_id": homestay.id,
+        "name": homestay.name,
+        "address": homestay.address,
+        "latitude": lat,
+        "longitude": lng,
+        "google_maps_url": f"https://www.google.com/maps/dir/?api=1&destination={lat},{lng}"
+    }
+
 @router.get("/")
 async def get_homestays(
     page: int = Query(1, ge=1),
@@ -307,3 +334,88 @@ async def get_categories(db: Session = Depends(get_db)):
             } for cat in categories
         ]
     }
+
+@router.get("/{homestay_id}/blocked-dates")
+async def get_homestay_blocked_dates(
+    homestay_id: int,
+    start_date: str = Query(...),
+    end_date: str = Query(...),
+    db: Session = Depends(get_db)
+):
+    """Lấy danh sách ngày bị chặn/không available cho homestay"""
+    from app.models.room_categories import HomestayRoom, RoomAvailability
+    from app.models.bookings import Booking
+    from datetime import datetime, timedelta
+    
+    homestay = db.query(Homestay).filter(Homestay.id == homestay_id).first()
+    if not homestay:
+        raise HTTPException(status_code=404, detail="Không tìm thấy homestay")
+    
+    # Parse dates
+    start = datetime.fromisoformat(start_date.replace('Z', '')).date()
+    end = datetime.fromisoformat(end_date.replace('Z', '')).date()
+    
+    blocked_dates = set()
+    
+    # Lấy tất cả phòng của homestay
+    rooms = db.query(HomestayRoom).filter(
+        HomestayRoom.homestay_id == homestay_id,
+        HomestayRoom.is_available == True
+    ).all()
+    
+    if not rooms:
+        # Homestay không có phòng - kiểm tra booking trực tiếp
+        bookings = db.query(Booking).filter(
+            Booking.homestay_id == homestay_id,
+            Booking.check_in <= end,
+            Booking.check_out >= start,
+            Booking.status.in_(["confirmed", "pending", "blocked"])
+        ).all()
+        
+        for booking in bookings:
+            current = max(booking.check_in, start)
+            end_booking = min(booking.check_out, end)
+            while current < end_booking:
+                blocked_dates.add(current.isoformat())
+                current += timedelta(days=1)
+    else:
+        # Homestay có phòng - kiểm tra availability và booking
+        current_date = start
+        while current_date <= end:
+            all_rooms_blocked = True
+            
+            for room in rooms:
+                # Kiểm tra availability
+                availability = db.query(RoomAvailability).filter(
+                    RoomAvailability.room_id == room.id,
+                    RoomAvailability.date == current_date
+                ).first()
+                
+                # Nếu có availability và is_available = True thì phòng này available
+                if availability and availability.is_available:
+                    all_rooms_blocked = False
+                    break
+                
+                # Nếu không có availability record, kiểm tra booking
+                if not availability:
+                    booking = db.query(Booking).filter(
+                        Booking.homestay_id == homestay_id,
+                        Booking.check_in <= current_date,
+                        Booking.check_out > current_date,
+                        Booking.status.in_(["confirmed", "pending", "blocked"])
+                    ).first()
+                    
+                    if not booking:
+                        all_rooms_blocked = False
+                        break
+            
+            if all_rooms_blocked:
+                blocked_dates.add(current_date.isoformat())
+            
+            current_date += timedelta(days=1)
+    
+    return {
+        "blocked_dates": sorted(list(blocked_dates)),
+        "total": len(blocked_dates)
+    }
+

@@ -1,3 +1,4 @@
+// Dashboard/src/components/AvailabilityManagement/SimpleAvailabilityManager.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -12,175 +13,195 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  CircularProgress,
   Alert,
-  Snackbar
+  Snackbar,
+  Chip,
+  Tooltip
 } from '@mui/material';
 import {
   ChevronLeft,
   ChevronRight,
   Today,
-  Refresh
+  Refresh,
+  Block,
+  CheckCircle
 } from '@mui/icons-material';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import ApiService from '../../services/api';
+import { dateUtils } from '../../utils/dateUtils';
 
-const SimpleAvailabilityManager = () => {
+const SimpleAvailabilityManager = ({ homestay, showSnackbar }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [availabilityData, setAvailabilityData] = useState({});
   const [selectedDate, setSelectedDate] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
+  const [selectedDates, setSelectedDates] = useState([]);
+  const [bulkMode, setBulkMode] = useState(false);
 
-  const homestayId = 8; // Fixed homestay ID for testing
+  // Generate calendar days
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   useEffect(() => {
-    loadAvailabilityData();
-  }, [currentDate]);
+    if (homestay?.id) {
+      loadAvailabilityData();
+    }
+  }, [currentDate, homestay?.id]);
 
   const loadAvailabilityData = async () => {
+    if (!homestay?.id) return;
+    
     setLoading(true);
     try {
       const month = currentDate.getMonth() + 1;
       const year = currentDate.getFullYear();
       
-      console.log(`Loading availability for homestay ${homestayId}, month ${month}, year ${year}`);
+      const response = await ApiService.get(
+        `/api/availability/calendar/${homestay.id}`,
+        { params: { month, year } }
+      );
       
-      // Try direct fetch first to debug
-      const directResponse = await fetch(`http://localhost:8000/api/availability/quick/${homestayId}?month=${month}&year=${year}`);
-      const directData = await directResponse.json();
+      // Transform calendar data to lookup object
+      const dataLookup = {};
+      response.days.forEach(day => {
+        dataLookup[day.date] = {
+          ...day.rooms[0], // Assuming single room for simplicity
+          statistics: response.statistics
+        };
+      });
       
-      console.log('Direct API Response:', directData);
-      console.log('Availability data keys:', Object.keys(directData.availability || {}));
-      
-      setAvailabilityData(directData.availability || {});
-      
-      if (Object.keys(directData.availability || {}).length === 0) {
-        showNotification('Không có dữ liệu availability cho tháng này', 'warning');
-      } else {
-        showNotification(`Đã tải ${Object.keys(directData.availability).length} ngày dữ liệu`, 'success');
-      }
-      
+      setAvailabilityData(dataLookup);
+      showSnackbar?.(`Loaded ${response.days.length} days`, 'success');
     } catch (error) {
       console.error('Error loading availability:', error);
-      showNotification(`Lỗi tải dữ liệu: ${error.message}`, 'error');
+      showSnackbar?.(`Error: ${error.message}`, 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const showNotification = (message, severity = 'info') => {
-    setNotification({ open: true, message, severity });
-  };
-
   const handleBlockDates = async (dates) => {
+    const formattedDates = dates.map(d => dateUtils.formatDateForAPI(d));
+    
     try {
-      const response = await ApiService.request(`/api/availability/block-dates/${homestayId}`, {
-        method: 'POST',
-        body: JSON.stringify({
-          dates: dates.map(d => format(d, 'yyyy-MM-dd')),
-          room_ids: null
-        })
-      });
+      const response = await ApiService.post(
+        `/api/availability/bulk-update/${homestay.id}`,
+        {
+          dates: formattedDates,
+          room_ids: null,
+          reason: 'Blocked by admin'
+        }
+      );
       
-      console.log('Block response:', response);
-      showNotification(`Đã chặn thành công: ${response.message}`, 'success');
-      
-      // Reload dữ liệu sau 500ms để đảm bảo DB đã cập nhật
-      setTimeout(() => {
-        loadAvailabilityData();
-      }, 500);
+      showSnackbar?.(response.message, 'success');
+      setSelectedDates([]);
+      setBulkMode(false);
+      setTimeout(() => loadAvailabilityData(), 500);
     } catch (error) {
-      console.error('Error blocking dates:', error);
-      showNotification(`Lỗi chặn ngày: ${error.message}`, 'error');
+      showSnackbar?.(`Error: ${error.message}`, 'error');
     }
   };
 
   const handleUnblockDates = async (dates) => {
+    const formattedDates = dates.map(d => dateUtils.formatDateForAPI(d));
+    
     try {
-      const response = await ApiService.request(`/api/availability/unblock-dates/${homestayId}`, {
-        method: 'POST',
-        body: JSON.stringify({
-          dates: dates.map(d => format(d, 'yyyy-MM-dd')),
-          room_ids: null
-        })
+      await ApiService.post(`/api/availability/unblock-dates/${homestay.id}`, {
+        dates: formattedDates,
+        room_ids: null
       });
       
-      console.log('Unblock response:', response);
-      showNotification(`Đã bỏ chặn thành công: ${response.message}`, 'success');
-      
-      // Reload dữ liệu sau 500ms để đảm bảo DB đã cập nhật
-      setTimeout(() => {
-        loadAvailabilityData();
-      }, 500);
+      showSnackbar?.('Unblocked successfully', 'success');
+      setSelectedDates([]);
+      setBulkMode(false);
+      setTimeout(() => loadAvailabilityData(), 500);
     } catch (error) {
-      console.error('Error unblocking dates:', error);
-      showNotification(`Lỗi bỏ chặn ngày: ${error.message}`, 'error');
+      showSnackbar?.(`Error: ${error.message}`, 'error');
     }
   };
 
   const getDayData = (date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
+    const dateStr = dateUtils.formatDateForAPI(date);
     return availabilityData[dateStr] || {
       status: 'not_set',
       color: '#e0e0e0',
-      available_rooms: 0,
-      tooltip: 'Chưa thiết lập lịch trống'
+      tooltip: 'Not set'
     };
+  };
+
+  const handleDateClick = (date) => {
+    if (bulkMode) {
+      // Toggle selection in bulk mode
+      const dateStr = dateUtils.formatDateForAPI(date);
+      const existing = selectedDates.find(d => dateUtils.formatDateForAPI(d) === dateStr);
+      
+      if (existing) {
+        setSelectedDates(selectedDates.filter(d => dateUtils.formatDateForAPI(d) !== dateStr));
+      } else {
+        setSelectedDates([...selectedDates, date]);
+      }
+    } else {
+      // Single date selection
+      setSelectedDate(date);
+      setOpenDialog(true);
+    }
   };
 
   const renderCalendarDay = (date) => {
     const dayData = getDayData(date);
-    const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
-    const dateStr = format(date, 'yyyy-MM-dd');
-    
-    // Debug log for first few days
-    if (date.getDate() <= 3) {
-      console.log(`Rendering day ${dateStr}:`, dayData);
-    }
+    const dateStr = dateUtils.formatDateForAPI(date);
+    const today = new Date();
+    const isToday = dateUtils.formatDateForAPI(today) === dateStr;
+    const isSelected = selectedDates.some(d => dateUtils.formatDateForAPI(d) === dateStr);
     
     return (
-      <Card
-        key={date.toString()}
-        sx={{
-          minHeight: 60,
-          cursor: 'pointer',
-          border: isToday ? '2px solid #1976d2' : '1px solid #e0e0e0',
-          backgroundColor: dayData.color + '20',
-          borderLeft: `4px solid ${dayData.color}`,
-          '&:hover': {
-            boxShadow: 2,
-            transform: 'translateY(-2px)'
-          },
-          transition: 'all 0.2s ease'
-        }}
-        onClick={() => {
-          console.log(`Clicked on ${dateStr}:`, dayData);
-          setSelectedDate(date);
-          setOpenDialog(true);
-        }}
-      >
-        <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-          <Typography variant="body2" sx={{ fontWeight: isToday ? 'bold' : 'normal' }}>
-            {format(date, 'd')}
-          </Typography>
-          <Typography variant="caption" sx={{ color: dayData.color }}>
-            {dayData.status === 'available' ? 'Trống' : 
-             dayData.status === 'pending' ? 'Chờ' :
-             dayData.status === 'blocked' ? 'Chặn' :
-             dayData.status === 'not_set' ? 'Chưa đặt' : 'Đặt'}
-          </Typography>
-          <Typography variant="caption" display="block" sx={{ fontSize: '10px' }}>
-            R: {dayData.available_rooms || 0}
-          </Typography>
-        </CardContent>
-      </Card>
+      <Tooltip key={dateStr} title={dayData.tooltip} arrow>
+        <Card
+          sx={{
+            minHeight: 80,
+            cursor: 'pointer',
+            border: isToday ? '2px solid #1976d2' : isSelected ? '2px solid #ff9800' : '1px solid #e0e0e0',
+            backgroundColor: isSelected ? '#fff3e0' : dayData.color + '20',
+            borderLeft: `4px solid ${dayData.color}`,
+            '&:hover': {
+              boxShadow: 2,
+              transform: 'translateY(-2px)'
+            },
+            transition: 'all 0.2s ease'
+          }}
+          onClick={() => handleDateClick(date)}
+        >
+          <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
+            <Typography variant="body2" sx={{ fontWeight: isToday ? 'bold' : 'normal' }}>
+              {date.getDate()}
+            </Typography>
+            <Typography variant="caption" sx={{ color: dayData.color, display: 'block' }}>
+              {dayData.status === 'available' ? 'Free' : 
+               dayData.status === 'blocked' ? 'Blocked' :
+               dayData.status === 'booked' ? 'Booked' : 'N/A'}
+            </Typography>
+            {dayData.price && (
+              <Typography variant="caption" sx={{ fontSize: '10px', display: 'block' }}>
+                {(dayData.price / 1000).toFixed(0)}K
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
+      </Tooltip>
     );
   };
+
+  if (!homestay) {
+    return (
+      <Alert severity="info">
+        Please select a homestay to manage availability
+      </Alert>
+    );
+  }
 
   return (
     <Box>
@@ -203,24 +224,77 @@ const SimpleAvailabilityManager = () => {
               onClick={() => setCurrentDate(new Date())}
               size="small"
             >
-              Hôm nay
+              Today
             </Button>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              Data: {Object.keys(availabilityData).length} days
-            </Typography>
+            <Chip 
+              label={bulkMode ? 'Bulk Mode ON' : 'Single Mode'} 
+              color={bulkMode ? 'warning' : 'default'}
+              onClick={() => {
+                setBulkMode(!bulkMode);
+                setSelectedDates([]);
+              }}
+            />
+            {bulkMode && selectedDates.length > 0 && (
+              <>
+                <Button
+                  variant="contained"
+                  color="error"
+                  size="small"
+                  startIcon={<Block />}
+                  onClick={() => handleBlockDates(selectedDates)}
+                >
+                  Block ({selectedDates.length})
+                </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  startIcon={<CheckCircle />}
+                  onClick={() => handleUnblockDates(selectedDates)}
+                >
+                  Unblock ({selectedDates.length})
+                </Button>
+              </>
+            )}
             <IconButton onClick={loadAvailabilityData} color="primary" disabled={loading}>
               <Refresh />
             </IconButton>
           </Box>
         </Box>
+        
+        {/* Statistics */}
+        {availabilityData[Object.keys(availabilityData)[0]]?.statistics && (
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Chip 
+              label={`Available: ${availabilityData[Object.keys(availabilityData)[0]].statistics.available}`} 
+              color="success" 
+              size="small" 
+            />
+            <Chip 
+              label={`Booked: ${availabilityData[Object.keys(availabilityData)[0]].statistics.booked}`} 
+              color="error" 
+              size="small" 
+            />
+            <Chip 
+              label={`Blocked: ${availabilityData[Object.keys(availabilityData)[0]].statistics.blocked}`} 
+              color="default" 
+              size="small" 
+            />
+            <Chip 
+              label={`Occupancy: ${availabilityData[Object.keys(availabilityData)[0]].statistics.occupancy_rate}%`} 
+              color="info" 
+              size="small" 
+            />
+          </Box>
+        )}
       </Paper>
 
       {/* Calendar Grid */}
       <Paper sx={{ p: 2 }}>
         <Grid container spacing={1} sx={{ mb: 1 }}>
-          {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(day => (
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
             <Grid item xs key={day}>
               <Typography variant="subtitle2" sx={{ textAlign: 'center', fontWeight: 'bold', p: 1 }}>
                 {day}
@@ -229,25 +303,39 @@ const SimpleAvailabilityManager = () => {
           ))}
         </Grid>
 
-        <Grid container spacing={1}>
-          {calendarDays.map(date => (
-            <Grid item xs key={date.toString()}>
-              {renderCalendarDay(date)}
-            </Grid>
-          ))}
-        </Grid>
+        {loading ? (
+          <Box display="flex" justifyContent="center" p={3}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={1}>
+            {/* Fill empty days at start */}
+            {Array.from({ length: calendarDays[0].getDay() }).map((_, i) => (
+              <Grid item xs key={`empty-${i}`}>
+                <Box sx={{ minHeight: 80 }} />
+              </Grid>
+            ))}
+            
+            {/* Calendar days */}
+            {calendarDays.map(date => (
+              <Grid item xs key={date.toString()}>
+                {renderCalendarDay(date)}
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Paper>
 
       {/* Date Detail Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>
-          Chi tiết ngày {selectedDate && format(selectedDate, 'dd/MM/yyyy')}
+          Date Details: {selectedDate && format(selectedDate, 'dd/MM/yyyy')}
         </DialogTitle>
         <DialogContent>
           {selectedDate && (
             <Box sx={{ textAlign: 'center', py: 2 }}>
               <Typography variant="h6" gutterBottom>
-                Trạng thái: {getDayData(selectedDate).status}
+                Status: {getDayData(selectedDate).status}
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 {getDayData(selectedDate).tooltip}
@@ -262,7 +350,7 @@ const SimpleAvailabilityManager = () => {
                     setOpenDialog(false);
                   }}
                 >
-                  Chặn ngày này
+                  Block this date
                 </Button>
                 <Button
                   variant="contained"
@@ -272,30 +360,16 @@ const SimpleAvailabilityManager = () => {
                     setOpenDialog(false);
                   }}
                 >
-                  Bỏ chặn ngày này
+                  Unblock this date
                 </Button>
               </Box>
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Đóng</Button>
+          <Button onClick={() => setOpenDialog(false)}>Close</Button>
         </DialogActions>
       </Dialog>
-
-      {/* Notification */}
-      <Snackbar
-        open={notification.open}
-        autoHideDuration={4000}
-        onClose={() => setNotification({ ...notification, open: false })}
-      >
-        <Alert 
-          severity={notification.severity} 
-          onClose={() => setNotification({ ...notification, open: false })}
-        >
-          {notification.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

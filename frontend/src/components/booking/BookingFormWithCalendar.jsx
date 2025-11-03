@@ -107,20 +107,43 @@ const BookingFormWithCalendar = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validateForm() && dateInfo.isValid) {
-      const finalBookingData = {
-        ...bookingData,
-        homestayId: homestay?.id,
-        roomId: room?.id,
-        nights: dateInfo.nights,
-        totalPrice: dateInfo.totalPrice,
-        pricePerNight
-      };
+  const handleSubmit = async () => {
+    if (!validateForm() || !dateInfo.isValid) {
+      return;
+    }
+    
+    // Kiểm tra lại availability trước khi submit
+    try {
+      const checkInStr = bookingData.checkIn.toISOString().split('T')[0];
+      const checkOutStr = bookingData.checkOut.toISOString().split('T')[0];
       
-      if (onBookingSubmit) {
-        onBookingSubmit(finalBookingData);
+      const response = await fetch(
+        `http://localhost:8000/api/availability/check/${homestay?.id}?check_in=${checkInStr}&check_out=${checkOutStr}&guests=${bookingData.guests}`
+      );
+      
+      const data = await response.json();
+      
+      if (!data.available) {
+        setErrors({ submit: data.message || 'Ngày đã chọn không khả dụng. Vui lòng chọn ngày khác.' });
+        return;
       }
+    } catch (error) {
+      console.error('Error checking availability:', error);
+      setErrors({ submit: 'Không thể kiểm tra tình trạng phòng. Vui lòng thử lại.' });
+      return;
+    }
+    
+    const finalBookingData = {
+      ...bookingData,
+      homestayId: homestay?.id,
+      roomId: room?.id,
+      nights: dateInfo.nights,
+      totalPrice: dateInfo.totalPrice,
+      pricePerNight
+    };
+    
+    if (onBookingSubmit) {
+      onBookingSubmit(finalBookingData);
     }
   };
 
@@ -298,6 +321,12 @@ const BookingFormWithCalendar = ({
               {!dateInfo.isValid && bookingData.checkIn && bookingData.checkOut && (
                 <Alert severity="warning" sx={{ mt: 2 }}>
                   Vui lòng kiểm tra lại ngày đã chọn. Có thể một số ngày không có sẵn.
+                </Alert>
+              )}
+              
+              {errors.submit && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {errors.submit}
                 </Alert>
               )}
             </CardContent>

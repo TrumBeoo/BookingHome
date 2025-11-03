@@ -7,7 +7,7 @@ import logging
 import traceback
 import os
 from app.db import engine, Base, SessionLocal
-from app.routes import auth, dashboard, homestays, destinations, admin, admin_auth, bookings, homestay_management, payments, room_categories, availability, seo, admin_room_categories
+from app.routes import auth, dashboard, homestays, destinations, admin, admin_auth, bookings, homestay_management, payments, room_categories, availability, seo, admin_room_categories, promotions, banners, admin_banners
 from app.middleware import rate_limit_middleware, security_headers_middleware
 
 # Configure logging
@@ -81,6 +81,7 @@ def create_app() -> FastAPI:
     app.include_router(homestays.router)
     app.include_router(destinations.router)
     app.include_router(bookings.router, prefix="/bookings")
+    app.include_router(promotions.router, prefix="/promotions")
     app.include_router(payments.router)
     app.include_router(admin.router)
     app.include_router(homestay_management.router)
@@ -89,6 +90,8 @@ def create_app() -> FastAPI:
 
     app.include_router(availability.router)
     app.include_router(seo.router)
+    app.include_router(banners.router)
+    app.include_router(admin_banners.router)
     
     # Mount static files for serving uploaded images
     uploads_dir = os.path.join(os.path.dirname(__file__), "uploads")

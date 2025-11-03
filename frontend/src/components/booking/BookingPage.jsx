@@ -4,6 +4,8 @@ import Layout from '../common/Layout';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../utils/api';
 import PaymentMethods from '../Payment/PaymentMethods';
+import CouponInput from './CouponInput';
+import PromoBanner from '../banner/PromoBanner';
 import './BookingPage.css';
 
 const BookingPage = () => {
@@ -36,10 +38,13 @@ const BookingPage = () => {
     nights: 0,
     basePrice: 0,
     serviceFee: 0,
+    discount: 0,
     total: 0,
   });
 
-
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [blockedDates, setBlockedDates] = useState([]);
+  const [availabilityError, setAvailabilityError] = useState(null);
 
   const steps = ['Thông tin đặt phòng', 'Thông tin khách hàng', 'Thanh toán'];
 
@@ -84,7 +89,33 @@ const BookingPage = () => {
 
   useEffect(() => {
     calculatePricing();
-  }, [bookingData.checkin, bookingData.checkout, property]);
+  }, [bookingData.checkin, bookingData.checkout, property, appliedCoupon]);
+
+  useEffect(() => {
+    if (bookingData.checkin && bookingData.checkout && id) {
+      checkAvailability();
+    }
+  }, [bookingData.checkin, bookingData.checkout, id]);
+
+  const checkAvailability = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/availability/check/${id}?` +
+        `check_in=${bookingData.checkin}&` +
+        `check_out=${bookingData.checkout}&` +
+        `guests=${bookingData.guests}`
+      );
+      const data = await response.json();
+      
+      if (!data.available) {
+        setAvailabilityError('Không có phòng trống trong khoảng thời gian này. Vui lòng chọn ngày khác.');
+      } else {
+        setAvailabilityError(null);
+      }
+    } catch (error) {
+      console.error('Error checking availability:', error);
+    }
+  };
 
   const calculatePricing = () => {
     if (!bookingData.checkin || !bookingData.checkout || !property) return;
@@ -97,9 +128,10 @@ const BookingPage = () => {
     
     const basePrice = nights * property.price;
     const serviceFee = Math.round(basePrice * 0.1);
-    const total = basePrice + serviceFee;
+    const discount = appliedCoupon?.discount_amount || 0;
+    const total = Math.max(0, basePrice + serviceFee - discount);
     
-    setPricing({ nights, basePrice, serviceFee, total });
+    setPricing({ nights, basePrice, serviceFee, discount, total });
   };
 
   const handleInputChange = (section, field, value) => {
@@ -122,6 +154,11 @@ const BookingPage = () => {
   const handleNext = () => {
     if (activeStep === 0 && (!bookingData.checkin || !bookingData.checkout || pricing.nights <= 0)) {
       alert('Vui lòng chọn ngày nhận và trả phòng hợp lệ');
+      return;
+    }
+    
+    if (activeStep === 0 && availabilityError) {
+      alert(availabilityError);
       return;
     }
     
@@ -157,6 +194,9 @@ const BookingPage = () => {
         check_out: bookingData.checkout,
         guests: bookingData.guests,
         total_price: pricing.total,
+        original_price: appliedCoupon ? pricing.basePrice + pricing.serviceFee : null,
+        discount_amount: appliedCoupon?.discount_amount || null,
+        coupon_code: appliedCoupon?.code || null,
         guest_info: bookingData.guestInfo,
         payment_method: bookingData.paymentMethod,
         special_requests: bookingData.guestInfo.specialRequests
@@ -321,6 +361,24 @@ const BookingPage = () => {
               </div>
             </div>
             
+            {availabilityError && (
+              <div style={{ 
+                marginTop: '24px', 
+                padding: '16px', 
+                backgroundColor: '#ffebee', 
+                borderRadius: '8px',
+                border: '1px solid #ef5350',
+                color: '#c62828',
+                fontFamily: 'Roboto, sans-serif',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                <span>{availabilityError}</span>
+              </div>
+            )}
+            
             {pricing.nights > 0 && (
               <div style={{ 
                 marginTop: '24px', 
@@ -352,6 +410,14 @@ const BookingPage = () => {
                     {pricing.serviceFee.toLocaleString()}đ
                   </span>
                 </div>
+                {pricing.discount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ fontFamily: 'Roboto, sans-serif', color: '#4caf50' }}>Giảm giá</span>
+                    <span style={{ fontFamily: 'Roboto, sans-serif', color: '#4caf50' }}>
+                      -{pricing.discount.toLocaleString()}đ
+                    </span>
+                  </div>
+                )}
                 <div style={{ height: '1px', backgroundColor: '#e0e0e0', margin: '16px 0' }}></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ 
@@ -526,6 +592,15 @@ const BookingPage = () => {
             }}>
               Phương thức thanh toán
             </h3>
+            
+            <CouponInput
+              onCouponApply={setAppliedCoupon}
+              onCouponRemove={() => setAppliedCoupon(null)}
+              totalAmount={pricing.basePrice + pricing.serviceFee}
+              homestayId={parseInt(id)}
+              userId={user?.id}
+              appliedCoupon={appliedCoupon}
+            />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
               {paymentMethods.map((method) => (
                 <div
@@ -721,6 +796,8 @@ const BookingPage = () => {
                         <div className="price-nights">({pricing.nights} đêm)</div>
                       </div>
                     )}
+                    
+                    <PromoBanner position="checkout_sidebar" />
                   </div>
                 )}
               </div>

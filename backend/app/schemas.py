@@ -90,3 +90,49 @@ class FilterOptionsResponse(BaseModel):
     guest_range: dict
     amenities: List[dict]
     tags: List[TagResponse]
+
+# Banner Schemas
+class BannerCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    link_url: Optional[str] = None
+    position: str
+    button_text: Optional[str] = None
+    discount_text: Optional[str] = None
+    priority: int = 0
+    is_active: bool = True
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+
+class BannerUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    link_url: Optional[str] = None
+    position: Optional[str] = None
+    button_text: Optional[str] = None
+    discount_text: Optional[str] = None
+    priority: Optional[int] = None
+    is_active: Optional[bool] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+
+class BannerResponse(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    link_url: Optional[str] = None
+    position: str
+    button_text: Optional[str] = None
+    discount_text: Optional[str] = None
+    priority: int
+    is_active: bool
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    
+    class Config:
+        from_attributes = True

@@ -3,9 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../common/Layout';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../utils/api';
-import PricingCalendar from '../booking/PricingCalendar';
-import PromotionCard from '../promotion/PromotionCard';
 import MiniAvailabilityCalendar from '../booking/MiniAvailabilityCalendar';
+import DiscountBadge from '../banner/DiscountBadge';
+import PromoBanner from '../banner/PromoBanner';
+import { openDirections } from '../../utils/directions';
 import './PropertyDetail.css';
 
 const getAmenityIcon = (amenityName) => {
@@ -40,32 +41,7 @@ const PropertyDetail = () => {
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedDates, setSelectedDates] = useState([]);
-  const [pricingInfo, setPricingInfo] = useState(null);
-  
-  // Mock promotions data
-  const availablePromotions = [
-    {
-      id: 1,
-      title: 'Khuyến mãi cuối tuần',
-      description: 'Giảm 20% cho đặt phòng cuối tuần',
-      code: 'WEEKEND20',
-      discount_type: 'percentage',
-      discount_value: 20,
-      min_amount: 1000000,
-      end_date: '2024-12-31'
-    },
-    {
-      id: 2,
-      title: 'Combo 3N2Đ',
-      description: 'Đặt 3 đêm chỉ tính tiền 2 đêm',
-      code: 'COMBO3N2D',
-      discount_type: 'percentage',
-      discount_value: 33,
-      min_amount: 2000000,
-      end_date: '2024-12-31'
-    }
-  ];
+
 
 
 
@@ -329,10 +305,14 @@ const PropertyDetail = () => {
     <Layout>
       <div className="property-detail">
         <div className="property-container">
+          <PromoBanner position="detail_top" />
           {/* Header */}
           <div className="property-header">
             <div className="property-info">
-              <h1 className="property-title">{property.name}</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <h1 className="property-title">{property.name}</h1>
+                <DiscountBadge discount={property.discount_percent} position="inline" />
+              </div>
               <div className="property-meta">
                 <div className="rating-info">
                   <span className="star-icon">⭐</span>
@@ -474,20 +454,6 @@ const PropertyDetail = () => {
                 </div>
               </div>
 
-              {/* Khuyến mãi và bảng giá */}
-              <div className="info-card">
-                <h2>Khuyến mãi đặc biệt</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-                  {availablePromotions.map((promotion) => (
-                    <PromotionCard 
-                      key={promotion.id}
-                      promotion={promotion}
-                      onApply={(promo) => console.log('Applied promotion:', promo)}
-                    />
-                  ))}
-                </div>
-              </div>
-              
               {/* Mini Calendar */}
               <div className="info-card">
                 <h2>Lịch trống</h2>
@@ -498,16 +464,6 @@ const PropertyDetail = () => {
                     onDateSelect={(date) => console.log('Selected date:', date)}
                   />
                 </div>
-              </div>
-              
-              {/* Bảng giá động */}
-              <div className="info-card">
-                <PricingCalendar
-                  basePrice={property.price}
-                  selectedDates={selectedDates}
-                  availablePromotions={availablePromotions}
-                  onPriceChange={setPricingInfo}
-                />
               </div>
 
               {/* Reviews */}
@@ -548,13 +504,8 @@ const PropertyDetail = () => {
               <div className="booking-card">
                 <div className="booking-header">
                   <div className="price-info">
-                    <span className="price">{pricingInfo ? pricingInfo.finalPrice.toLocaleString() : property.price.toLocaleString()}đ</span>
+                    <span className="price">{property.price.toLocaleString()}đ</span>
                     <span className="price-unit">/đêm</span>
-                    {pricingInfo?.promotion && (
-                      <div style={{ fontSize: '12px', color: '#4caf50', marginTop: '4px' }}>
-                        Đã áp dụng: {pricingInfo.promotion.title}
-                      </div>
-                    )}
                   </div>
                   <div className="rating-badge">
                     <span className="star-icon">⭐</span>
@@ -581,6 +532,14 @@ const PropertyDetail = () => {
                   style={{ marginTop: '8px', width: '100%' }}
                 >
                   📅 Đặt phòng với lịch
+                </button>
+                
+                <button
+                  className="btn-secondary"
+                  onClick={() => openDirections(id)}
+                  style={{ marginTop: '8px', width: '100%', backgroundColor: '#4285f4', color: 'white' }}
+                >
+                  📍 Chỉ đường
                 </button>
 
                 <p className="no-charge-notice">Bạn chưa bị tính phí</p>

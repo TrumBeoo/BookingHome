@@ -7,10 +7,15 @@ from .content import BlogPost, StaticPage, SiteSettings
 from .locations import Location
 from .amenities import Amenity, amenity_homestay
 from .images import HomestayImage
-from .additional import HomestayAvailability, ContactMessage, Notification, Wishlist, PasswordReset
+from .additional import HomestayAvailability, ContactMessage, Notification, Wishlist, PasswordReset, Promotion, PromotionUsage, DiscountType
 from .room_categories import RoomCategory, Tag, HomestayRoom, RoomAvailability, RoomBooking
 
 from .seo import SEOMetadata, URLSlug, SitemapEntry
+from .banners import Banner, BannerPosition
+
+# Aliases for backward compatibility
+Availability = RoomAvailability
+Room = HomestayRoom
 
 __all__ = [
     "User",
@@ -19,9 +24,10 @@ __all__ = [
     "Booking", "Payment", "BookingStatus", "PaymentStatus",
     "Review",
     "BlogPost", "StaticPage", "SiteSettings",
-    "HomestayAvailability", "ContactMessage", "Notification", "Wishlist", "PasswordReset",
+    "HomestayAvailability", "ContactMessage", "Notification", "Wishlist", "PasswordReset", "Promotion", "PromotionUsage", "DiscountType",
     "RoomCategory", "Tag", "HomestayRoom", "RoomAvailability", "RoomBooking",
-
     "SEOMetadata", "URLSlug", "SitemapEntry",
-    "amenity_homestay"
+    "Banner", "BannerPosition",
+    "amenity_homestay",
+    "Availability", "Room"
 ]

@@ -26,14 +26,21 @@ const DateRangePicker = ({
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
   const [availability, setAvailability] = useState({});
+  const [blockedDatesFromAPI, setBlockedDatesFromAPI] = useState([]);
   const [error, setError] = useState('');
   const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
     if (homestayId) {
-      loadAvailability();
+      loadBlockedDates();
     }
   }, [homestayId, roomId]);
+
+  useEffect(() => {
+    if (homestayId && blockedDatesFromAPI.length >= 0) {
+      loadAvailability();
+    }
+  }, [homestayId, roomId, blockedDatesFromAPI, pricePerNight]);
 
   useEffect(() => {
     if (checkIn && checkOut) {
@@ -42,20 +49,37 @@ const DateRangePicker = ({
     }
   }, [checkIn, checkOut, availability]);
 
+  const loadBlockedDates = async () => {
+    try {
+      const today = new Date();
+      const endDate = new Date(today.getTime() + 90 * 86400000);
+      
+      const response = await fetch(
+        `http://localhost:8000/api/homestays/${homestayId}/blocked-dates?start_date=${today.toISOString()}&end_date=${endDate.toISOString()}`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        setBlockedDatesFromAPI(data.blocked_dates || []);
+      }
+    } catch (error) {
+      console.error('Error loading blocked dates:', error);
+    }
+  };
+
   const loadAvailability = async () => {
     try {
-      // Simulate API call - replace with actual API
       const mockData = {};
       const today = new Date();
       
       for (let i = 0; i < 90; i++) {
         const date = new Date(today.getTime() + i * 86400000);
         const dateStr = date.toISOString().split('T')[0];
-        const isBlocked = blockedDates.includes(dateStr);
+        const isBlocked = blockedDates.includes(dateStr) || blockedDatesFromAPI.includes(dateStr);
         
         mockData[dateStr] = {
-          available: !isBlocked && Math.random() > 0.2,
-          price: pricePerNight + (Math.random() * 200000 - 100000)
+          available: !isBlocked,
+          price: pricePerNight
         };
       }
       
@@ -79,6 +103,26 @@ const DateRangePicker = ({
     if (nights < minStay) {
       setError(`Tối thiểu phải ở ${minStay} đêm`);
       return;
+    }
+    
+    // Kiểm tra có ngày bị chặn trong khoảng thời gian không
+    const currentDate = new Date(checkIn);
+    while (currentDate < checkOut) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      if (blockedDatesFromAPI.includes(dateStr)) {
+        setError(`Ngày ${currentDate.toLocaleDateString('vi-VN')} đã bị chặn. Vui lòng chọn ngày khác.`);
+        if (onDateChange) {
+          onDateChange({
+            checkIn,
+            checkOut,
+            nights,
+            totalPrice,
+            isValid: false
+          });
+        }
+        return;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
     }
     
     // If all validations pass, notify parent
