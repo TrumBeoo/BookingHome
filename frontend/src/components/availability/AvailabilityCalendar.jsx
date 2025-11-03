@@ -33,7 +33,7 @@ const AvailabilityCalendar = ({ homestayId, roomId = null }) => {
         params.append('room_id', roomId.toString());
       }
 
-      const response = await fetch(`/api/availability/calendar/${homestayId}?${params}`);
+      const response = await fetch(`http://localhost:8000/api/availability/calendar/${homestayId}?${params}`);
       const data = await response.json();
       setCalendarData(data);
     } catch (error) {
@@ -75,6 +75,16 @@ const AvailabilityCalendar = ({ homestayId, roomId = null }) => {
         badgeStatus = 'default';
         badgeText = 'Chặn';
         badgeColor = '#d9d9d9';
+        break;
+      case 'pending':
+        badgeStatus = 'warning';
+        badgeText = 'Chờ';
+        badgeColor = '#faad14';
+        break;
+      case 'not_set':
+        badgeStatus = 'default';
+        badgeText = 'Chưa đặt';
+        badgeColor = '#e0e0e0';
         break;
       default:
         return null;
@@ -196,6 +206,12 @@ const AvailabilityCalendar = ({ homestayId, roomId = null }) => {
         </div>
         <div className="legend-item">
           <Badge status="default" text="Bị chặn" />
+        </div>
+        <div className="legend-item">
+          <Badge status="warning" text="Chờ xác nhận" />
+        </div>
+        <div className="legend-item">
+          <Badge status="default" text="Chưa thiết lập" style={{ color: '#e0e0e0' }} />
         </div>
       </div>
     </Card>

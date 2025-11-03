@@ -305,6 +305,31 @@ class ApiService {
       body: JSON.stringify(bulkData),
     });
   }
+
+  // Quick availability methods for calendar
+  async getQuickAvailability(homestayId, month, year) {
+    return this.request(`/api/availability/quick/${homestayId}?month=${month}&year=${year}`);
+  }
+
+  async blockDates(homestayId, dates, roomIds = null) {
+    return this.request(`/api/availability/block-dates/${homestayId}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        dates: dates,
+        room_ids: roomIds
+      })
+    });
+  }
+
+  async unblockDates(homestayId, dates, roomIds = null) {
+    return this.request(`/api/availability/unblock-dates/${homestayId}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        dates: dates,
+        room_ids: roomIds
+      })
+    });
+  }
 }
 
 export default new ApiService();

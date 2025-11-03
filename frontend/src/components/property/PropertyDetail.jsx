@@ -4,7 +4,7 @@ import Layout from '../common/Layout';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../utils/api';
 import PricingCalendar from '../booking/PricingCalendar';
-import PromotionCard from '../promotions/PromotionCard';
+import PromotionCard from '../promotion/PromotionCard';
 import MiniAvailabilityCalendar from '../booking/MiniAvailabilityCalendar';
 import './PropertyDetail.css';
 

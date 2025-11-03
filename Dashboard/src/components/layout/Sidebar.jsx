@@ -135,14 +135,7 @@ const Sidebar = () => {
         { title: 'Kiểm duyệt nội dung', path: '/dashboard/reviews/moderation', icon: <Edit /> },
       ],
     },
-    {
-      title: 'Quản lý Khuyến mãi',
-      icon: <Campaign />,
-      submenu: [
-        { title: 'Banner giảm giá', path: '/dashboard/promotions', icon: <LocalOffer /> },
-        { title: 'Popup khuyến mãi', path: '/dashboard/promotions', icon: <Campaign /> },
-      ],
-    },
+
     {
       title: 'Quản lý Nội dung',
       icon: <Article />,

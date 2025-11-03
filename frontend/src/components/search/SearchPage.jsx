@@ -22,6 +22,7 @@ import {
   AcUnit,
   Star,
 } from '@mui/icons-material';
+
 import Layout from '../common/Layout';
 import SearchFilters from './SearchFilters';
 import { useAuth } from '../../contexts/AuthContext';
@@ -246,6 +247,7 @@ const SearchPage = () => {
 
   return (
     <Layout>
+
       <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', padding: '32px 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
           <div className="search-container" style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
@@ -614,6 +616,7 @@ const SearchPage = () => {
 
       {/* Login Dialog */}
       <LoginDialog />
+
     </Layout>
   );
 };

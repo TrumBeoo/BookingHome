@@ -25,7 +25,7 @@ import Statistics from './pages/Dashboard/Statistics';
 import Support from './pages/Dashboard/Support';
 import SystemSettings from './pages/Dashboard/SystemSettings';
 import RoomCategoryManagement from './pages/Dashboard/RoomCategoryManagement';
-import PromotionManagement from './pages/Dashboard/PromotionManagement';
+
 import RoomAvailabilityPage from './pages/RoomAvailabilityPage';
 
 function App() {
@@ -136,12 +136,7 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Promotion Management Routes */}
-            <Route path="/dashboard/promotions" element={
-              <ProtectedRoute>
-                <PromotionManagement />
-              </ProtectedRoute>
-            } />
+
             
             {/* Room Availability Management Routes */}
             <Route path="/dashboard/room-availability" element={

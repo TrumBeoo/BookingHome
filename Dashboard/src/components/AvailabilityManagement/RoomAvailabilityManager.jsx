@@ -20,9 +20,13 @@ import {
   Warning,
   Refresh
 } from '@mui/icons-material';
-import RoomCalendarView from './RoomCalendarView';
+import SimpleAvailabilityManager from './SimpleAvailabilityManager';
 import BookingConflictChecker from './BookingConflictChecker';
 import CalendarIntegration from './CalendarIntegration';
+import AvailabilitySync from './AvailabilitySync';
+import QuickTest from './QuickTest';
+import DebugAvailability from './DebugAvailability';
+import SimpleCalendarTest from './SimpleCalendarTest';
 import ApiService from '../../services/api';
 
 const RoomAvailabilityManager = () => {
@@ -238,14 +242,7 @@ const RoomAvailabilityManager = () => {
   const getTabContent = () => {
     switch (currentTab) {
       case 0:
-        return (
-          <RoomCalendarView
-            rooms={rooms}
-            bookings={bookings}
-            onDateClick={handleDateClick}
-            onRefresh={loadData}
-          />
-        );
+        return <SimpleAvailabilityManager />;
       case 1:
         return (
           <CalendarIntegration
@@ -256,6 +253,14 @@ const RoomAvailabilityManager = () => {
             onToggleAutoSync={handleToggleAutoSync}
           />
         );
+      case 2:
+        return <AvailabilitySync />;
+      case 3:
+        return <QuickTest />;
+      case 4:
+        return <DebugAvailability />;
+      case 5:
+        return <SimpleCalendarTest />;
       default:
         return null;
     }
@@ -378,6 +383,26 @@ const RoomAvailabilityManager = () => {
           <Tab
             icon={<Sync />}
             label="Tích Hợp Calendar"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<Settings />}
+            label="Test Đồng Bộ"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<Warning />}
+            label="Test Nhanh"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<Settings />}
+            label="Debug API"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<CalendarMonth />}
+            label="Simple Test"
             iconPosition="start"
           />
         </Tabs>

@@ -42,7 +42,7 @@ import ApiService from '../../services/api';
 import AmenityManager from './AmenityManager';
 import CategoryManager from './CategoryManager';
 import ImageManager from './ImageManager';
-import CalendarManager from './CalendarManager';
+import SimpleCalendarManager from './SimpleCalendarManager';
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -202,7 +202,7 @@ const HomestayManagement = () => {
           </TabPanel>
 
           <TabPanel value={tabValue} index={3}>
-            <CalendarManager 
+            <SimpleCalendarManager 
               homestay={selectedHomestay} 
               onUpdate={loadHomestays}
               showSnackbar={showSnackbar}

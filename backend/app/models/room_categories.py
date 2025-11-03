@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, String, Text, Boolean, DateTime, ForeignKey, JSON, DECIMAL, Table
+from sqlalchemy import Column, Integer, BigInteger, String, Text, Boolean, DateTime, Date, ForeignKey, JSON, DECIMAL, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db import Base
@@ -74,7 +74,7 @@ class RoomAvailability(Base):
     
     id = Column(BigInteger, primary_key=True, index=True)
     room_id = Column(BigInteger, ForeignKey("homestay_rooms.id"))
-    date = Column(DateTime, nullable=False)
+    date = Column(Date, nullable=False)
     is_available = Column(Boolean, default=True)
     price_override = Column(DECIMAL(10, 2))  # Giá đặc biệt cho ngày cụ thể
     min_nights = Column(Integer, default=1)  # Số đêm tối thiểu

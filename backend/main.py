@@ -7,7 +7,7 @@ import logging
 import traceback
 import os
 from app.db import engine, Base, SessionLocal
-from app.routes import auth, dashboard, homestays, destinations, admin, admin_auth, bookings, homestay_management, payments, room_categories, promotions, availability, seo, admin_room_categories, admin_promotions
+from app.routes import auth, dashboard, homestays, destinations, admin, admin_auth, bookings, homestay_management, payments, room_categories, availability, seo, admin_room_categories
 from app.middleware import rate_limit_middleware, security_headers_middleware
 
 # Configure logging
@@ -86,7 +86,7 @@ def create_app() -> FastAPI:
     app.include_router(homestay_management.router)
     app.include_router(room_categories.router)
     app.include_router(admin_room_categories.router)
-    app.include_router(promotions.router)
+
     app.include_router(availability.router)
     app.include_router(seo.router)
     

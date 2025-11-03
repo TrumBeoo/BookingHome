@@ -9,7 +9,7 @@ from .amenities import Amenity, amenity_homestay
 from .images import HomestayImage
 from .additional import HomestayAvailability, ContactMessage, Notification, Wishlist, PasswordReset
 from .room_categories import RoomCategory, Tag, HomestayRoom, RoomAvailability, RoomBooking
-from .promotions import Promotion, PromotionUsage, ComboPackage, SeasonalPricing
+
 from .seo import SEOMetadata, URLSlug, SitemapEntry
 
 __all__ = [
@@ -21,7 +21,7 @@ __all__ = [
     "BlogPost", "StaticPage", "SiteSettings",
     "HomestayAvailability", "ContactMessage", "Notification", "Wishlist", "PasswordReset",
     "RoomCategory", "Tag", "HomestayRoom", "RoomAvailability", "RoomBooking",
-    "Promotion", "PromotionUsage", "ComboPackage", "SeasonalPricing",
+
     "SEOMetadata", "URLSlug", "SitemapEntry",
     "amenity_homestay"
 ]

@@ -61,8 +61,27 @@ const CalendarManager = ({ homestay, onUpdate, showSnackbar }) => {
   const loadAvailability = async () => {
     setLoading(true);
     try {
-      const response = await ApiService.getHomestayAvailability(homestay.id);
-      setAvailability(response.availability || response || []);
+      const currentDate = new Date();
+      const response = await ApiService.getQuickAvailability(
+        homestay.id, 
+        currentDate.getMonth() + 1, 
+        currentDate.getFullYear()
+      );
+      
+      // Convert availability data to array format
+      const availabilityArray = [];
+      if (response.availability) {
+        Object.entries(response.availability).forEach(([date, data]) => {
+          availabilityArray.push({
+            id: date,
+            date: date,
+            is_available: data.status === 'available',
+            price_override: data.min_price
+          });
+        });
+      }
+      
+      setAvailability(availabilityArray);
     } catch (error) {
       console.error('Error loading availability:', error);
       showSnackbar('Không thể tải lịch trống', 'error');
@@ -73,16 +92,16 @@ const CalendarManager = ({ homestay, onUpdate, showSnackbar }) => {
   };
 
   const handleAddAvailability = async () => {
-    const availabilityData = {
-      homestay_id: homestay.id,
-      date: selectedDate.toISOString().split('T')[0],
-      is_available: isAvailable,
-      price_override: priceOverride ? parseFloat(priceOverride) : null
-    };
-
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    
     setLoading(true);
     try {
-      await ApiService.createAvailability(availabilityData);
+      if (isAvailable) {
+        await ApiService.unblockDates(homestay.id, [dateStr]);
+      } else {
+        await ApiService.blockDates(homestay.id, [dateStr]);
+      }
+      
       showSnackbar('Thêm lịch trống thành công');
       resetForm();
       setOpenDialog(false);
@@ -97,14 +116,14 @@ const CalendarManager = ({ homestay, onUpdate, showSnackbar }) => {
   const handleUpdateAvailability = async () => {
     if (!editingAvailability) return;
 
-    const availabilityData = {
-      is_available: editingAvailability.is_available,
-      price_override: editingAvailability.price_override ? parseFloat(editingAvailability.price_override) : null
-    };
-
     setLoading(true);
     try {
-      await ApiService.updateAvailability(editingAvailability.id, availabilityData);
+      if (editingAvailability.is_available) {
+        await ApiService.unblockDates(homestay.id, [editingAvailability.date]);
+      } else {
+        await ApiService.blockDates(homestay.id, [editingAvailability.date]);
+      }
+      
       showSnackbar('Cập nhật lịch trống thành công');
       setEditingAvailability(null);
       setOpenDialog(false);
@@ -116,12 +135,13 @@ const CalendarManager = ({ homestay, onUpdate, showSnackbar }) => {
     }
   };
 
-  const handleDeleteAvailability = async (availabilityId) => {
+  const handleDeleteAvailability = async (dateStr) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa lịch này?')) return;
 
     setLoading(true);
     try {
-      await ApiService.deleteAvailability(availabilityId);
+      // Reset to default (unblock)
+      await ApiService.unblockDates(homestay.id, [dateStr]);
       showSnackbar('Xóa lịch trống thành công');
       loadAvailability();
     } catch (error) {
@@ -140,17 +160,22 @@ const CalendarManager = ({ homestay, onUpdate, showSnackbar }) => {
       return;
     }
 
+    // Generate date array
+    const dates = [];
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      dates.push(currentDate.toISOString().split('T')[0]);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
     setLoading(true);
     try {
-      const bulkData = {
-        homestay_id: homestay.id,
-        start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        is_available: isAvailable,
-        price_override: priceOverride ? parseFloat(priceOverride) : null
-      };
-
-      await ApiService.bulkUpdateAvailability(bulkData);
+      if (isAvailable) {
+        await ApiService.unblockDates(homestay.id, dates);
+      } else {
+        await ApiService.blockDates(homestay.id, dates);
+      }
+      
       showSnackbar('Cập nhật hàng loạt thành công');
       resetForm();
       setOpenDialog(false);
@@ -203,7 +228,7 @@ const CalendarManager = ({ homestay, onUpdate, showSnackbar }) => {
       <Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Typography variant="h6">
-            Quản lý lịch trống cho: {homestay.name}
+            Quản lý lịch trống cho: {homestay.name} (ID: {homestay.id})
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
@@ -228,6 +253,21 @@ const CalendarManager = ({ homestay, onUpdate, showSnackbar }) => {
             </Button>
           </Box>
         </Box>
+
+        {/* Debug Info */}
+        <Paper sx={{ p: 2, mb: 2, bgcolor: '#f5f5f5' }}>
+          <Typography variant="subtitle2" gutterBottom>
+            Debug Info:
+          </Typography>
+          <Typography variant="body2">
+            Homestay ID: {homestay.id} | Availability Records: {availability.length} | Loading: {loading.toString()}
+          </Typography>
+          {availability.length > 0 && (
+            <Typography variant="body2">
+              Sample: {JSON.stringify(availability[0], null, 2)}
+            </Typography>
+          )}
+        </Paper>
 
         {loading ? (
           <Box display="flex" justifyContent="center" p={3}>
@@ -295,7 +335,7 @@ const CalendarManager = ({ homestay, onUpdate, showSnackbar }) => {
                                 <IconButton
                                   size="small"
                                   color="error"
-                                  onClick={() => handleDeleteAvailability(item.id)}
+                                  onClick={() => handleDeleteAvailability(item.date)}
                                 >
                                   <Delete />
                                 </IconButton>

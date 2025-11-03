@@ -24,31 +24,13 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
-import PromotionPopup from '../promotions/PromotionPopup';
+
 
 const HeroSection = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [showPromotionPopup, setShowPromotionPopup] = useState(false);
-  const [currentPromotion, setCurrentPromotion] = useState(null);
 
-  useEffect(() => {
-    // Hiển thị popup khuyến mãi sau 3 giây
-    const timer = setTimeout(() => {
-      setCurrentPromotion({
-        title: 'Khuyến mãi mùa thu',
-        description: 'Giảm 30% cho tất cả các phòng trong tháng này',
-        code: 'AUTUMN30',
-        discount_type: 'percentage',
-        discount_value: 30,
-        end_date: '2024-12-31'
-      });
-      setShowPromotionPopup(true);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const stats = [
     { icon: <LocationOn />, value: '1000+', label: 'Homestay' },
@@ -331,12 +313,7 @@ const HeroSection = () => {
           <SearchBar />
         </Box>
       </Container>
-      
-      <PromotionPopup 
-        open={showPromotionPopup}
-        onClose={() => setShowPromotionPopup(false)}
-        promotion={currentPromotion}
-      />
+
     </Box>
   );
 };

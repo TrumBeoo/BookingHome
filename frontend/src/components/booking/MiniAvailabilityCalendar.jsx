@@ -12,8 +12,10 @@ import {
   ChevronLeft,
   ChevronRight,
   EventAvailable,
-  EventBusy
+  EventBusy,
+  Refresh
 } from '@mui/icons-material';
+import availabilityService from '../../services/availabilityService';
 
 
 const MiniAvailabilityCalendar = ({ 
@@ -35,31 +37,51 @@ const MiniAvailabilityCalendar = ({
     calendarDays.push(new Date(d));
   }
 
+  const month = currentDate.getMonth() + 1;
+  const year = currentDate.getFullYear();
+
   useEffect(() => {
-    if (homestayId) {
+    if (!homestayId) return;
+    loadAvailability();
+  }, [homestayId, roomId, month, year]);
+
+  // Auto refresh every 30 seconds
+  useEffect(() => {
+    if (!homestayId) return;
+    
+    const interval = setInterval(() => {
       loadAvailability();
-    }
-  }, [homestayId, roomId, currentDate]);
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [homestayId, month, year]);
 
   const loadAvailability = async () => {
+    if (!homestayId) return;
+    
     setLoading(true);
     try {
-      // Simulate API call - replace with actual API
-      const mockData = {};
-      const today = new Date();
+      console.log('Loading availability for homestay:', homestayId, 'month:', month, 'year:', year);
+      const response = await availabilityService.getQuickAvailability(homestayId, year, month);
+      console.log('API Response:', response);
       
-      calendarDays.forEach(day => {
-        const dateStr = day.toISOString().split('T')[0];
-        const isBlocked = blockedDates.includes(dateStr);
-        const isPast = day < today;
-        
-        mockData[dateStr] = {
-          available: !isBlocked && !isPast && Math.random() > 0.3,
-          price: Math.floor(Math.random() * 1000000) + 500000
-        };
-      });
+      // Transform API response to expected format
+      const availabilityData = {};
+      if (response && response.availability) {
+        Object.entries(response.availability).forEach(([date, info]) => {
+          availabilityData[date] = {
+            available: info.status === 'available',
+            price: info.min_price,
+            status: info.status,
+            color: info.color,
+            available_rooms: info.available_rooms,
+            tooltip: info.tooltip
+          };
+        });
+      }
       
-      setAvailability(mockData);
+      console.log('Transformed availability data:', availabilityData);
+      setAvailability(availabilityData);
     } catch (error) {
       console.error('Error loading availability:', error);
     } finally {
@@ -84,49 +106,28 @@ const MiniAvailabilityCalendar = ({
     }
   };
 
-  const getDayStatus = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    const dayData = availability[dateStr];
-    const today = new Date();
-    
-    if (date < today) {
-      return { status: 'past', color: '#f5f5f5', textColor: '#bdbdbd' };
-    }
-    
-    if (!dayData || !dayData.available) {
-      return { status: 'unavailable', color: '#ffebee', textColor: '#f44336' };
-    }
-    
-    if (selectedCheckIn && date.toDateString() === selectedCheckIn.toDateString()) {
-      return { status: 'checkin', color: '#e3f2fd', textColor: '#1976d2' };
-    }
-    
-    if (selectedCheckOut && date.toDateString() === selectedCheckOut.toDateString()) {
-      return { status: 'checkout', color: '#e8f5e8', textColor: '#388e3c' };
-    }
-    
-    if (selectedCheckIn && selectedCheckOut && 
-        date > selectedCheckIn && date < selectedCheckOut) {
-      return { status: 'between', color: '#f3e5f5', textColor: '#7b1fa2' };
-    }
-    
-    return { status: 'available', color: '#ffffff', textColor: '#333333' };
-  };
+
 
   const renderDay = (date) => {
-    const dayStatus = getDayStatus(date);
     const dateStr = date.toISOString().split('T')[0];
     const dayData = availability[dateStr];
     const isCurrentMonth = date.getMonth() === currentDate.getMonth();
     const dayNumber = date.getDate();
     
+    // Get status and color from API data
+    const status = dayData?.status || 'unavailable';
+    const price = dayData?.price;
+    const backgroundColor = dayData?.color || '#bdbdbd';
+    const textColor = status === 'available' ? 'white' : '#666';
+    
     return (
       <Tooltip
         key={dateStr}
         title={
-          dayData && dayData.available 
-            ? `${dayData.price?.toLocaleString('vi-VN')}đ/đêm`
-            : 'Không có sẵn'
+          dayData?.tooltip || 
+          (status === 'available' && price
+            ? `${price.toLocaleString('vi-VN')}đ/đêm`
+            : 'Không có sẵn')
         }
         arrow
       >
@@ -138,18 +139,15 @@ const MiniAvailabilityCalendar = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: dayStatus.color,
-            color: dayStatus.textColor,
-            cursor: dayData && dayData.available ? 'pointer' : 'not-allowed',
+            backgroundColor: backgroundColor,
+            color: textColor,
+            cursor: status === 'available' ? 'pointer' : 'not-allowed',
             borderRadius: 1,
             fontSize: '0.875rem',
-            fontWeight: dayStatus.status === 'checkin' || dayStatus.status === 'checkout' ? 'bold' : 'normal',
             opacity: isCurrentMonth ? 1 : 0.3,
-            border: dayStatus.status === 'checkin' || dayStatus.status === 'checkout' ? '2px solid' : 'none',
-            borderColor: dayStatus.status === 'checkin' ? '#1976d2' : dayStatus.status === 'checkout' ? '#388e3c' : 'transparent',
             '&:hover': {
-              backgroundColor: dayData && dayData.available ? '#e3f2fd' : dayStatus.color,
-              transform: dayData && dayData.available ? 'scale(1.1)' : 'none'
+              backgroundColor: status === 'available' ? '#66bb6a' : backgroundColor,
+              transform: status === 'available' ? 'scale(1.1)' : 'none'
             },
             transition: 'all 0.2s ease'
           }}
@@ -170,32 +168,33 @@ const MiniAvailabilityCalendar = ({
         <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
           {currentDate.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })}
         </Typography>
-        <IconButton size="small" onClick={handleNextMonth}>
-          <ChevronRight />
-        </IconButton>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <IconButton size="small" onClick={loadAvailability} disabled={loading} title="Làm mới">
+            <Refresh sx={{ fontSize: 18 }} />
+          </IconButton>
+          <IconButton size="small" onClick={handleNextMonth}>
+            <ChevronRight />
+          </IconButton>
+        </Box>
       </Box>
 
       {/* Days of Week */}
-      <Grid container spacing={0.5} sx={{ mb: 1 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5, mb: 1 }}>
         {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(day => (
-          <Grid item xs key={day}>
-            <Box sx={{ textAlign: 'center', fontSize: '0.75rem', color: 'text.secondary', py: 0.5 }}>
-              {day}
-            </Box>
-          </Grid>
+          <Box key={day} sx={{ textAlign: 'center', fontSize: '0.75rem', color: 'text.secondary', py: 0.5 }}>
+            {day}
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       {/* Calendar Days */}
-      <Grid container spacing={0.5}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5 }}>
         {calendarDays.map(date => (
-          <Grid item xs key={date.toString()}>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              {renderDay(date)}
-            </Box>
-          </Grid>
+          <Box key={date.toString()} sx={{ display: 'flex', justifyContent: 'center' }}>
+            {renderDay(date)}
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       {/* Legend */}
       <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #e0e0e0' }}>
@@ -204,12 +203,20 @@ const MiniAvailabilityCalendar = ({
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <EventAvailable sx={{ fontSize: 16, color: '#4caf50' }} />
+            <Box sx={{ width: 12, height: 12, backgroundColor: '#4caf50', borderRadius: 1 }} />
             <Typography variant="caption">Có sẵn</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <EventBusy sx={{ fontSize: 16, color: '#f44336' }} />
+            <Box sx={{ width: 12, height: 12, backgroundColor: '#ff9800', borderRadius: 1 }} />
+            <Typography variant="caption">Chờ xác nhận</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ width: 12, height: 12, backgroundColor: '#f44336', borderRadius: 1 }} />
             <Typography variant="caption">Đã đặt</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ width: 12, height: 12, backgroundColor: '#9e9e9e', borderRadius: 1 }} />
+            <Typography variant="caption">Bị chặn</Typography>
           </Box>
         </Box>
       </Box>

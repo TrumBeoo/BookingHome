@@ -7,6 +7,7 @@ from app.models.bookings import Booking
 from app.models.homestays import Homestay
 from pydantic import BaseModel
 from datetime import datetime, date, timedelta
+from typing import List
 import calendar
 
 router = APIRouter(prefix="/api/availability", tags=["Availability"])
@@ -300,3 +301,231 @@ def get_blocked_dates(
             current_date += timedelta(days=1)
     
     return {"blocked_dates": blocked_dates}
+
+@router.get("/quick/{homestay_id}")
+def get_quick_availability(
+    homestay_id: int,
+    month: int = Query(...),
+    year: int = Query(...),
+    db: Session = Depends(get_db)
+):
+    """API nhanh để frontend hiển thị availability"""
+    
+    # Tạo range ngày trong tháng
+    start_date = date(year, month, 1)
+    if month == 12:
+        end_date = date(year + 1, 1, 1) - timedelta(days=1)
+    else:
+        end_date = date(year, month + 1, 1) - timedelta(days=1)
+    
+    # Lấy tất cả phòng
+    rooms = db.query(HomestayRoom).filter(
+        HomestayRoom.homestay_id == homestay_id,
+        HomestayRoom.is_available == True
+    ).all()
+    
+    # Lấy tất cả bookings trong tháng
+    bookings = db.query(Booking).filter(
+        Booking.homestay_id == homestay_id,
+        Booking.status.in_(["confirmed", "pending"]),
+        Booking.check_in <= end_date,
+        Booking.check_out >= start_date
+    ).all()
+    
+    availability_data = {}
+    current_date = start_date
+    
+    while current_date <= end_date:
+        available_count = 0
+        booked_count = 0
+        pending_count = 0
+        min_price = None
+        
+        for room in rooms:
+            # Kiểm tra availability
+            availability = db.query(RoomAvailability).filter(
+                RoomAvailability.room_id == room.id,
+                RoomAvailability.date == current_date
+            ).first()
+            
+            # Chỉ coi là available nếu có record availability và is_available = True
+            # Hoặc nếu không có record availability nào thì coi như chưa được thiết lập
+            is_available = False
+            if availability:
+                is_available = availability.is_available
+            
+            # Kiểm tra booking
+            booking = next((
+                b for b in bookings 
+                if b.check_in <= current_date < b.check_out
+            ), None)
+            
+            if booking:
+                if booking.status == "confirmed":
+                    booked_count += 1
+                else:
+                    pending_count += 1
+            elif is_available:
+                available_count += 1
+                room_price = availability.price_override if availability and availability.price_override else (room.price_per_night or room.room_category.base_price)
+                if min_price is None or room_price < min_price:
+                    min_price = float(room_price)
+        
+        # Xác định màu sắc và trạng thái
+        # Kiểm tra xem có bất kỳ availability record nào cho ngày này không
+        has_availability_data = db.query(RoomAvailability).join(HomestayRoom).filter(
+            HomestayRoom.homestay_id == homestay_id,
+            RoomAvailability.date == current_date
+        ).first() is not None
+        
+        if available_count > 0:
+            color = "#4caf50"  # Xanh lá - trống
+            status = "available"
+        elif pending_count > 0:
+            color = "#ff9800"  # Vàng - chờ xác nhận  
+            status = "pending"
+        elif booked_count > 0:
+            color = "#f44336"  # Đỏ - đã đặt
+            status = "booked"
+        elif has_availability_data:
+            color = "#9e9e9e"  # Xám - bị chặn
+            status = "blocked"
+        else:
+            # Chưa có dữ liệu availability được thiết lập
+            color = "#e0e0e0"  # Xám nhạt - chưa thiết lập
+            status = "not_set"
+        
+        availability_data[current_date.isoformat()] = {
+            "status": status,
+            "color": color,
+            "available_rooms": available_count,
+            "booked_rooms": booked_count,
+            "pending_rooms": pending_count,
+            "min_price": min_price,
+            "tooltip": f"Trống: {available_count}, Đặt: {booked_count}, Chờ: {pending_count}" if has_availability_data else "Chưa thiết lập lịch trống"
+        }
+        
+        current_date += timedelta(days=1)
+    
+    return {
+        "month": month,
+        "year": year,
+        "availability": availability_data,
+        "total_rooms": len(rooms)
+    }
+
+@router.post("/block-dates/{homestay_id}")
+def block_dates(
+    homestay_id: int,
+    dates: List[str],
+    room_ids: Optional[List[int]] = None,
+    db: Session = Depends(get_db)
+):
+    """Chặn ngày cụ thể cho phòng"""
+    
+    # Kiểm tra homestay tồn tại
+    homestay = db.query(Homestay).filter(Homestay.id == homestay_id).first()
+    if not homestay:
+        raise HTTPException(status_code=404, detail="Homestay không tồn tại")
+    
+    # Lấy danh sách phòng cần block
+    if room_ids:
+        rooms = db.query(HomestayRoom).filter(
+            HomestayRoom.homestay_id == homestay_id,
+            HomestayRoom.id.in_(room_ids)
+        ).all()
+    else:
+        rooms = db.query(HomestayRoom).filter(
+            HomestayRoom.homestay_id == homestay_id,
+            HomestayRoom.is_available == True
+        ).all()
+    
+    blocked_count = 0
+    
+    for date_str in dates:
+        # Parse date and ensure it's a date object
+        try:
+            block_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            # Try parsing as datetime if it includes time
+            block_date = datetime.fromisoformat(date_str.replace('Z', '+00:00')).date()
+        
+        print(f"Processing block date: {date_str} -> {block_date}")
+        
+        for room in rooms:
+            # Kiểm tra xem đã có availability record chưa
+            existing = db.query(RoomAvailability).filter(
+                RoomAvailability.room_id == room.id,
+                RoomAvailability.date == block_date
+            ).first()
+            
+            if existing:
+                existing.is_available = False
+            else:
+                availability = RoomAvailability(
+                    room_id=room.id,
+                    date=block_date,
+                    is_available=False
+                )
+                db.add(availability)
+            
+            blocked_count += 1
+    
+    db.commit()
+    
+    return {
+        "message": f"Đã chặn {blocked_count} ngày cho {len(rooms)} phòng",
+        "blocked_dates": dates,
+        "affected_rooms": len(rooms)
+    }
+
+@router.post("/unblock-dates/{homestay_id}")
+def unblock_dates(
+    homestay_id: int,
+    dates: List[str],
+    room_ids: Optional[List[int]] = None,
+    db: Session = Depends(get_db)
+):
+    """Bỏ chặn ngày cụ thể cho phòng"""
+    
+    # Lấy danh sách phòng cần unblock
+    if room_ids:
+        rooms = db.query(HomestayRoom).filter(
+            HomestayRoom.homestay_id == homestay_id,
+            HomestayRoom.id.in_(room_ids)
+        ).all()
+    else:
+        rooms = db.query(HomestayRoom).filter(
+            HomestayRoom.homestay_id == homestay_id,
+            HomestayRoom.is_available == True
+        ).all()
+    
+    unblocked_count = 0
+    
+    for date_str in dates:
+        # Parse date and ensure it's a date object
+        try:
+            unblock_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            # Try parsing as datetime if it includes time
+            unblock_date = datetime.fromisoformat(date_str.replace('Z', '+00:00')).date()
+        
+        print(f"Processing unblock date: {date_str} -> {unblock_date}")
+        
+        for room in rooms:
+            availability = db.query(RoomAvailability).filter(
+                RoomAvailability.room_id == room.id,
+                RoomAvailability.date == unblock_date
+            ).first()
+            
+            if availability:
+                availability.is_available = True
+                unblocked_count += 1
+    
+    db.commit()
+    
+    return {
+        "message": f"Đã bỏ chặn {unblocked_count} ngày",
+        "unblocked_dates": dates,
+        "affected_rooms": len(rooms)
+    }

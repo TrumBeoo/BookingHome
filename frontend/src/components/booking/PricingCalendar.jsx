@@ -64,13 +64,19 @@ const PricingCalendar = ({
     }
 
     setCurrentPrice(finalPrice);
-    onPriceChange && onPriceChange({
+    
+    // Chỉ gọi onPriceChange nếu finalPrice thay đổi
+    const priceInfo = {
       basePrice,
       priceType,
       finalPrice,
       promotion: selectedPromotion ? availablePromotions.find(p => p.id === selectedPromotion) : null
-    });
-  }, [basePrice, priceType, selectedPromotion, availablePromotions, onPriceChange]);
+    };
+    
+    if (onPriceChange && finalPrice !== currentPrice) {
+      onPriceChange(priceInfo);
+    }
+  }, [basePrice, priceType, selectedPromotion]);
 
   const detectDateType = (date) => {
     const dateObj = new Date(date);
