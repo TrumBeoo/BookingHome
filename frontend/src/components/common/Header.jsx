@@ -36,13 +36,14 @@ import {
   LocationOn,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
   
   const [anchorEl, setAnchorEl] = useState(null);
@@ -108,10 +109,19 @@ const Header = () => {
                 navigate(item.path);
                 setMobileMenuOpen(false);
               }}
+              sx={{
+                bgcolor: location.pathname === item.path ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                },
+              }}
             >
               <ListItemText 
                 primary={item.label} 
-                primaryTypographyProps={{ fontWeight: 500 }}
+                primaryTypographyProps={{ 
+                  fontWeight: 500,
+                  color: location.pathname === item.path ? 'primary.main' : 'text.primary'
+                }}
               />
             </ListItem>
           ))}
@@ -321,43 +331,53 @@ const Header = () => {
             {/* Desktop Navigation */}
             {!isMobile && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                {publicMenuItems.map((item) => (
-                  <Button
-                    key={item.label}
-                    color="inherit"
-                    sx={{ 
-                      color: 'text.primary',
-                      fontWeight: 600,
-                      px: 3,
-                      py: 1,
-                      borderRadius: 2,
-                      position: 'relative',
-                      '&:hover': {
-                        bgcolor: alpha(theme.palette.primary.main, 0.08),
-                        color: 'primary.main',
-                        transform: 'translateY(-1px)',
-                      },
-                      '&:before': {
-                        content: '""',
-                        position: 'absolute',
-                        bottom: 0,
-                        left: '50%',
-                        width: 0,
-                        height: '2px',
-                        bgcolor: 'primary.main',
-                        transition: 'all 0.3s ease',
-                        transform: 'translateX(-50%)',
-                      },
-                      '&:hover:before': {
-                        width: '80%',
-                      },
-                      transition: 'all 0.2s ease',
-                    }}
-                    onClick={() => navigate(item.path)}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
+                {publicMenuItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Button
+                      key={item.label}
+                      color="inherit"
+                      sx={{ 
+                        color: isActive ? 'primary.main' : 'text.primary',
+                        bgcolor: isActive ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+                        fontWeight: 600,
+                        px: 3,
+                        py: 1,
+                        borderRadius: 2,
+                        position: 'relative',
+                        '&:hover': {
+                          bgcolor: alpha(theme.palette.primary.main, 0.12),
+                          color: 'primary.main',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+                        },
+                        '&:active': {
+                          transform: 'translateY(0px)',
+                          bgcolor: alpha(theme.palette.primary.main, 0.2),
+                          boxShadow: '0 2px 8px rgba(25, 118, 210, 0.2)',
+                        },
+                        '&:before': {
+                          content: '""',
+                          position: 'absolute',
+                          bottom: 0,
+                          left: '50%',
+                          width: isActive ? '80%' : 0,
+                          height: '2px',
+                          bgcolor: 'primary.main',
+                          transition: 'all 0.3s ease',
+                          transform: 'translateX(-50%)',
+                        },
+                        '&:hover:before': {
+                          width: '80%',
+                        },
+                        transition: 'all 0.2s ease',
+                      }}
+                      onClick={() => navigate(item.path)}
+                    >
+                      {item.label}
+                    </Button>
+                  );
+                })}
               </Box>
             )}
 
@@ -403,8 +423,14 @@ const Header = () => {
                         '&:hover': {
                           borderColor: 'primary.main',
                           color: 'primary.main',
-                          bgcolor: alpha(theme.palette.primary.main, 0.04),
-                          transform: 'translateY(-1px)',
+                          bgcolor: alpha(theme.palette.primary.main, 0.08),
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+                        },
+                        '&:active': {
+                          transform: 'translateY(0px)',
+                          bgcolor: alpha(theme.palette.primary.main, 0.15),
+                          borderColor: 'primary.dark',
                         },
                         transition: 'all 0.2s ease',
                       }}
@@ -441,9 +467,16 @@ const Header = () => {
                         sx={{ 
                           color: 'text.primary',
                           '&:hover': {
-                            bgcolor: alpha(theme.palette.error.main, 0.08),
+                            bgcolor: alpha(theme.palette.error.main, 0.12),
                             color: 'error.main',
+                            transform: 'scale(1.1)',
+                            boxShadow: '0 4px 12px rgba(244, 67, 54, 0.15)',
                           },
+                          '&:active': {
+                            transform: 'scale(1.05)',
+                            bgcolor: alpha(theme.palette.error.main, 0.2),
+                          },
+                          transition: 'all 0.2s ease',
                         }}
                       >
                         <Badge badgeContent={2} color="error">
@@ -458,8 +491,15 @@ const Header = () => {
                     sx={{ 
                       color: 'text.primary',
                       '&:hover': {
-                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        bgcolor: alpha(theme.palette.primary.main, 0.12),
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
                       },
+                      '&:active': {
+                        transform: 'scale(1.05)',
+                        bgcolor: alpha(theme.palette.primary.main, 0.2),
+                      },
+                      transition: 'all 0.2s ease',
                     }}
                   >
                     <Avatar 
@@ -484,8 +524,15 @@ const Header = () => {
                   sx={{ 
                     color: 'text.primary',
                     '&:hover': {
-                      bgcolor: alpha(theme.palette.primary.main, 0.08),
+                      bgcolor: alpha(theme.palette.primary.main, 0.12),
+                      transform: 'scale(1.1)',
+                      boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
                     },
+                    '&:active': {
+                      transform: 'scale(1.05)',
+                      bgcolor: alpha(theme.palette.primary.main, 0.2),
+                    },
+                    transition: 'all 0.2s ease',
                   }}
                 >
                   <MenuIcon />

@@ -57,7 +57,7 @@ const BannerCarousel = ({ position = 'home_hero' }) => {
     if (banners.length > 1) {
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % banners.length);
-      }, 5000);
+      }, 2000);
       return () => clearInterval(interval);
     }
   }, [banners.length]);
@@ -74,24 +74,29 @@ const BannerCarousel = ({ position = 'home_hero' }) => {
         borderRadius: 2,
         overflow: 'hidden',
         mb: 3,
-        background: currentBanner.image_url ? 
-          `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${currentBanner.image_url}) center/cover` :
-          'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         display: 'flex',
         alignItems: 'center',
         color: 'white'
       }}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          bgcolor: 'rgba(0,0,0,0.4)'
-        }}
-      />
+      {banners.map((banner, index) => (
+        <Box
+          key={index}
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: banner.image_url ? 
+              `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${banner.image_url}) center/cover` :
+              'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            opacity: index === currentIndex ? 1 : 0,
+            transition: 'opacity 0.8s ease-in-out',
+            zIndex: index === currentIndex ? 1 : 0
+          }}
+        />
+      ))}
       
       {/* Navigation Arrows */}
       {banners.length > 1 && (
@@ -105,6 +110,7 @@ const BannerCarousel = ({ position = 'home_hero' }) => {
               transform: 'translateY(-50%)',
               bgcolor: 'rgba(255,255,255,0.2)',
               color: 'white',
+              zIndex: 3,
               '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
             }}
           >
@@ -119,6 +125,7 @@ const BannerCarousel = ({ position = 'home_hero' }) => {
               transform: 'translateY(-50%)',
               bgcolor: 'rgba(255,255,255,0.2)',
               color: 'white',
+              zIndex: 3,
               '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
             }}
           >
@@ -127,11 +134,24 @@ const BannerCarousel = ({ position = 'home_hero' }) => {
         </>
       )}
       
-      <Box sx={{ position: 'relative', zIndex: 1, p: 4, maxWidth: 600 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 2 }}>
+      <Box sx={{ position: 'relative', zIndex: 2, p: 4, maxWidth: 600 }}>
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            fontWeight: 'bold', 
+            mb: 2,
+            animation: 'fadeInUp 0.8s ease-out'
+          }}
+        >
           {currentBanner.title}
         </Typography>
-        <Typography variant="body1" sx={{ mb: 3 }}>
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            mb: 3,
+            animation: 'fadeInUp 0.8s ease-out 0.2s backwards'
+          }}
+        >
           {currentBanner.description}
         </Typography>
         {currentBanner.button_text && (
@@ -139,11 +159,31 @@ const BannerCarousel = ({ position = 'home_hero' }) => {
             variant="contained"
             color="primary"
             onClick={() => window.open(currentBanner.link_url, '_blank')}
+            sx={{
+              animation: 'fadeInUp 0.8s ease-out 0.4s backwards',
+              '&:hover': { transform: 'scale(1.05)' },
+              transition: 'transform 0.2s'
+            }}
           >
             {currentBanner.button_text}
           </Button>
         )}
       </Box>
+      
+      <style>
+        {`
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
 
       {banners.length > 1 && (
         <Box
@@ -152,7 +192,8 @@ const BannerCarousel = ({ position = 'home_hero' }) => {
             bottom: 16,
             right: 16,
             display: 'flex',
-            gap: 1
+            gap: 1,
+            zIndex: 3
           }}
         >
           {banners.map((_, index) => (
@@ -164,7 +205,12 @@ const BannerCarousel = ({ position = 'home_hero' }) => {
                 height: 12,
                 borderRadius: '50%',
                 bgcolor: index === currentIndex ? 'white' : 'rgba(255,255,255,0.5)',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                '&:hover': {
+                  transform: 'scale(1.2)',
+                  bgcolor: 'white'
+                }
               }}
             />
           ))}

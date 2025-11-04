@@ -41,11 +41,18 @@ const RoomCategories = () => {
         roomCategoriesAPI.getCategories({ page: 1, limit: 12 }),
         roomCategoriesAPI.getFilterOptions()
       ]);
-      setCategories(categoriesData.results || categoriesData);
+      const apiCategories = categoriesData.results || categoriesData;
+      const demoCategories = [
+        { id: 5, name: 'Phòng Suite', description: 'Phòng sang trọng với không gian rộng rãi và tiện nghi cao cấp', max_guests: 4, room_size: 50, view_type: 'Biển', has_kitchen: true, has_balcony: true, is_pet_friendly: false, base_price: 2500000, tags: [] },
+        { id: 6, name: 'Phòng Family', description: 'Phòng rộng rãi dành cho gia đình, có 2 giường lớn', max_guests: 6, room_size: 45, view_type: 'Vườn', has_kitchen: true, has_balcony: true, is_pet_friendly: true, base_price: 2000000, tags: [] },
+        { id: 7, name: 'Phòng VIP', description: 'Phòng cao cấp nhất với thiết bị hiện đại và dịch vụ đặc biệt', max_guests: 2, room_size: 60, view_type: 'Biển', has_kitchen: true, has_balcony: true, is_pet_friendly: false, base_price: 3500000, tags: [] },
+        { id: 8, name: 'Phòng Penthouse', description: 'Phòng tầng thượng với view 360 độ tuyệt đẹp', max_guests: 4, room_size: 80, view_type: 'Toàn cảnh', has_kitchen: true, has_balcony: true, is_pet_friendly: true, base_price: 5000000, tags: [] }
+      ];
+      setCategories([...apiCategories, ...demoCategories]);
       setPagination({
         page: categoriesData.page || 1,
         totalPages: categoriesData.total_pages || 1,
-        totalItems: categoriesData.total || categoriesData.length
+        totalItems: (categoriesData.total || apiCategories.length) + 4
       });
       setFilterOptions(filtersData);
     } catch (err) {
@@ -139,6 +146,23 @@ const RoomCategories = () => {
     }).format(price);
   };
 
+  const getRoomCategoryImage = (category) => {
+    if (category.images?.[0]) {
+      return `http://localhost:8000${category.images[0]}`;
+    }
+    const imageMap = {
+      1: '/images/room_categories/2.jpg',
+      2: '/images/room_categories/2.jpg',
+      3: '/images/room_categories/3.jpg',
+      4: '/images/room_categories/4.jpg',
+      5: '/images/room_categories/5.jpg',
+      6: '/images/room_categories/6.jpg',
+      7: '/images/room_categories/7.jpg',
+      8: '/images/room_categories/8.jpg',
+    };
+    return imageMap[category.id] || `/images/room_categories/${((category.id - 1) % 7) + 2}.jpg`;
+  };
+
   if (loading && !categories.length) {
     return (
       <Container sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -226,27 +250,7 @@ const RoomCategories = () => {
           }
           
           .card-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(
-              to bottom,
-              rgba(0, 0, 0, 0.1) 0%,
-              rgba(0, 0, 0, 0.3) 50%,
-              rgba(0, 0, 0, 0.8) 100%
-            );
-            z-index: 1;
-          }
-          
-          .room-category-card:hover .card-overlay {
-            background: linear-gradient(
-              to bottom,
-              rgba(0, 0, 0, 0.2) 0%,
-              rgba(0, 0, 0, 0.4) 50%,
-              rgba(0, 0, 0, 0.9) 100%
-            );
+            display: none;
           }
           
           .favorite-btn {
@@ -282,11 +286,10 @@ const RoomCategories = () => {
             color: white;
             background: linear-gradient(
               to top,
-              rgba(0, 0, 0, 0.9) 0%,
-              rgba(0, 0, 0, 0.7) 60%,
-              rgba(0, 0, 0, 0.3) 100%
+              rgba(0, 0, 0, 0.75) 0%,
+              rgba(0, 0, 0, 0.4) 30%,
+              rgba(0, 0, 0, 0) 100%
             );
-            backdrop-filter: blur(5px);
           }
           
           .card-title {
@@ -621,11 +624,11 @@ const RoomCategories = () => {
             <div key={category.id} className="room-category-card" onClick={() => handleCategorySelect(category)}>
               <div className="card-image-container">
                 <img 
-                  src={category.images?.[0] ? `http://localhost:8000${category.images[0]}` : '/images/room-placeholder.svg'} 
+                  src={getRoomCategoryImage(category)} 
                   alt={category.name}
                   className="card-image"
                   onError={(e) => {
-                    e.target.src = '/images/room-placeholder.svg';
+                    e.target.src = '/images/room_categories/2.jpg';
                   }}
                 />
                 <div className="card-overlay"></div>
@@ -724,7 +727,7 @@ const RoomCategories = () => {
                     className="btn btn-primary"
                     onClick={(e) => {
                       e.stopPropagation();
-                      window.open(`/search?category=${category.id}`, '_blank');
+                      window.location.href = `/search?category=${category.id}`;
                     }}
                   >
                     Tìm
@@ -824,7 +827,7 @@ const RoomCategories = () => {
               <Button onClick={() => setDialogOpen(false)}>
                 Đóng
               </Button>
-              <Button variant="contained">
+              <Button variant="contained" onClick={() => { setDialogOpen(false); window.location.href = `/search?category=${selectedCategory.id}`; }}>
                 Tìm homestay có loại phòng này
               </Button>
             </DialogActions>
