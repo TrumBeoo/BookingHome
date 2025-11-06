@@ -31,7 +31,7 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
     // Store the attempted location for redirect after login
-    sessionStorage.setItem('redirectPath', location.pathname);
+    sessionStorage.setItem('redirectPath', location.pathname + location.search);
     return <Navigate to="/login" replace />;
   }
 

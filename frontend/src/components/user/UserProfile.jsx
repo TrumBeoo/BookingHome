@@ -26,6 +26,7 @@ import {
   DialogContent,
   DialogActions,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
   Edit,
@@ -42,6 +43,7 @@ import {
 } from '@mui/icons-material';
 import Layout from '../common/Layout';
 import { useAuth } from '../../contexts/AuthContext';
+import api from '../../utils/api';
 
 const UserProfile = () => {
   const { user, updateUser } = useAuth();
@@ -58,42 +60,30 @@ const UserProfile = () => {
     bio: user?.bio || '',
   });
 
-  const [bookingHistory] = useState([
-    {
-      id: 'BK001',
-      property: 'Villa Sapa Tuyệt Đẹp',
-      location: 'Sa Pa, Lào Cai',
-      checkin: '2024-02-15',
-      checkout: '2024-02-17',
-      guests: 4,
-      total: 2400000,
-      status: 'completed',
-      rating: 5,
-      image: '/api/placeholder/100/80',
-    },
-    {
-      id: 'BK002',
-      property: 'Homestay Hội An Cổ Kính',
-      location: 'Hội An, Quảng Nam',
-      checkin: '2024-03-10',
-      checkout: '2024-03-12',
-      guests: 2,
-      total: 1600000,
-      status: 'confirmed',
-      image: '/api/placeholder/100/80',
-    },
-    {
-      id: 'BK003',
-      property: 'Villa Đà Lạt Romantic',
-      location: 'Đà Lạt, Lâm Đồng',
-      checkin: '2024-04-20',
-      checkout: '2024-04-22',
-      guests: 2,
-      total: 1800000,
-      status: 'pending',
-      image: '/api/placeholder/100/80',
-    },
-  ]);
+  const [bookingHistory, setBookingHistory] = useState([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+  const [bookingError, setBookingError] = useState(null);
+
+  // Fetch booking history
+  useEffect(() => {
+    const fetchBookingHistory = async () => {
+      if (!user) return;
+      
+      try {
+        setLoadingBookings(true);
+        setBookingError(null);
+        const response = await api.getUserBookings();
+        setBookingHistory(response.bookings || []);
+      } catch (error) {
+        console.error('Error fetching booking history:', error);
+        setBookingError('Không thể tải lịch sử đặt phòng');
+      } finally {
+        setLoadingBookings(false);
+      }
+    };
+
+    fetchBookingHistory();
+  }, [user]);
 
   const [favorites] = useState([
     {
@@ -273,100 +263,113 @@ const UserProfile = () => {
           </Typography>
         </Box>
         
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Homestay</TableCell>
-                <TableCell>Ngày lưu trú</TableCell>
-                <TableCell>Khách</TableCell>
-                <TableCell>Tổng tiền</TableCell>
-                <TableCell>Trạng thái</TableCell>
-                <TableCell>Thao tác</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {bookingHistory.map((booking) => (
-                <TableRow key={booking.id}>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box
-                        sx={{
-                          width: 60,
-                          height: 40,
-                          bgcolor: 'grey.200',
-                          borderRadius: 1,
-                          backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Typography variant="caption" sx={{ color: 'white', opacity: 0.7 }}>
-                          IMG
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          {booking.property}
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <LocationOn sx={{ fontSize: 14, mr: 0.5, color: 'text.secondary' }} />
+        {loadingBookings ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : bookingError ? (
+          <Box sx={{ p: 3 }}>
+            <Alert severity="error">{bookingError}</Alert>
+          </Box>
+        ) : bookingHistory.length === 0 ? (
+          <Box sx={{ p: 3, textAlign: 'center' }}>
+            <Typography variant="body1" color="text.secondary">
+              Bạn chưa có lịch sử đặt phòng nào.
+            </Typography>
+          </Box>
+        ) : (
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Homestay</TableCell>
+                  <TableCell>Ngày lưu trú</TableCell>
+                  <TableCell>Khách</TableCell>
+                  <TableCell>Tổng tiền</TableCell>
+                  <TableCell>Trạng thái</TableCell>
+                  <TableCell>Thao tác</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {bookingHistory.map((booking) => (
+                  <TableRow key={booking.id}>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box
+                          sx={{
+                            width: 60,
+                            height: 40,
+                            bgcolor: 'grey.200',
+                            borderRadius: 1,
+                            backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Typography variant="caption" sx={{ color: 'white', opacity: 0.7 }}>
+                            IMG
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                            {booking.homestay_name}
+                          </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {booking.location}
+                            Mã đặt phòng: {booking.id}
                           </Typography>
                         </Box>
                       </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {new Date(booking.checkin).toLocaleDateString('vi-VN')}
-                    </Typography>
-                    <Typography variant="body2">
-                      {new Date(booking.checkout).toLocaleDateString('vi-VN')}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{booking.guests} khách</TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {booking.total.toLocaleString()}đ
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={getStatusText(booking.status)}
-                      color={getStatusColor(booking.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <IconButton size="small" title="Xem chi tiết">
-                        <Visibility />
-                      </IconButton>
-                      {booking.status === 'pending' && (
-                        <IconButton
-                          size="small"
-                          color="error"
-                          title="Hủy đặt phòng"
-                          onClick={() => handleCancelBooking(booking)}
-                        >
-                          <Cancel />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {new Date(booking.check_in).toLocaleDateString('vi-VN')}
+                      </Typography>
+                      <Typography variant="body2">
+                        {new Date(booking.check_out).toLocaleDateString('vi-VN')}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{booking.guests} khách</TableCell>
+                    <TableCell>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {Number(booking.total_price).toLocaleString()}đ
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={getStatusText(booking.status)}
+                        color={getStatusColor(booking.status)}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <IconButton size="small" title="Xem chi tiết">
+                          <Visibility />
                         </IconButton>
-                      )}
-                      {booking.status === 'completed' && !booking.rating && (
-                        <Button size="small" variant="outlined">
-                          Đánh giá
-                        </Button>
-                      )}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                        {booking.status === 'pending' && (
+                          <IconButton
+                            size="small"
+                            color="error"
+                            title="Hủy đặt phòng"
+                            onClick={() => handleCancelBooking(booking)}
+                          >
+                            <Cancel />
+                          </IconButton>
+                        )}
+                        {booking.status === 'completed' && !booking.rating && (
+                          <Button size="small" variant="outlined">
+                            Đánh giá
+                          </Button>
+                        )}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </CardContent>
     </Card>
   );

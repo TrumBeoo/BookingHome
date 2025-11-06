@@ -11,9 +11,10 @@ import {
   Divider,
   Alert
 } from '@mui/material';
-import { AccountBalanceWallet, AccountBalance, Money } from '@mui/icons-material';
+import { AccountBalanceWallet, AccountBalance, Money, CreditCard } from '@mui/icons-material';
 import api from '../../utils/api';
 import MoMoPayment from './MoMoPayment';
+import VNPayPayment from './VNPayPayment';
 
 const PaymentMethods = ({ booking, onPaymentSuccess, onPaymentError }) => {
   const [selectedMethod, setSelectedMethod] = useState('momo');
@@ -40,6 +41,8 @@ const PaymentMethods = ({ booking, onPaymentSuccess, onPaymentError }) => {
     switch (methodId) {
       case 'momo':
         return <AccountBalanceWallet sx={{ color: '#d82d8b' }} />;
+      case 'vnpay':
+        return <CreditCard sx={{ color: '#0066cc' }} />;
       case 'bank_transfer':
         return <AccountBalance sx={{ color: '#1976d2' }} />;
       case 'cash':
@@ -58,6 +61,14 @@ const PaymentMethods = ({ booking, onPaymentSuccess, onPaymentError }) => {
       case 'momo':
         return (
           <MoMoPayment
+            booking={booking}
+            onPaymentSuccess={onPaymentSuccess}
+            onPaymentError={onPaymentError}
+          />
+        );
+      case 'vnpay':
+        return (
+          <VNPayPayment
             booking={booking}
             onPaymentSuccess={onPaymentSuccess}
             onPaymentError={onPaymentError}

@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }) => {
       
       if (token) {
         if (isTokenExpired(token)) {
+          console.log('Token expired, removing...');
           removeToken();
           setIsAuthenticated(false);
           setUser(null);
@@ -31,6 +32,7 @@ export const AuthProvider = ({ children }) => {
             const userData = await authService.getCurrentUser();
             setUser(userData);
             setIsAuthenticated(true);
+            console.log('User authenticated:', userData.email);
           } catch (error) {
             console.error('Auth check failed:', error);
             removeToken();
@@ -52,6 +54,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.login(email, password);
       if (response.access_token) {
+        console.log('Login successful, token received');
         const userData = await authService.getCurrentUser();
         setUser(userData);
         setIsAuthenticated(true);
@@ -60,7 +63,7 @@ export const AuthProvider = ({ children }) => {
         const redirectPath = sessionStorage.getItem('redirectPath');
         if (redirectPath) {
           sessionStorage.removeItem('redirectPath');
-          window.location.href = redirectPath;
+          return { ...response, redirectPath };
         }
       }
       return response;

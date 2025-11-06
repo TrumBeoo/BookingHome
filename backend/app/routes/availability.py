@@ -10,7 +10,7 @@ from datetime import datetime, date, timedelta
 from typing import List
 import calendar
 
-router = APIRouter(prefix="/api/availability", tags=["Availability"])
+router = APIRouter(prefix="/availability", tags=["Availability"])
 
 class CalendarDay(BaseModel):
     date: str

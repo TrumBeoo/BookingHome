@@ -108,7 +108,7 @@ const AboutPage = () => {
     <Layout>
       {/* Hero Section */}
       <div className="hero-section" style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'url(/images/display/HL.jpg) center/cover no-repeat',
         color: 'white',
         padding: '64px 0',
         position: 'relative',

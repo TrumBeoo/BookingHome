@@ -99,13 +99,13 @@ const BookingPage = () => {
 
   const checkAvailability = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/availability/check/${id}?` +
-        `check_in=${bookingData.checkin}&` +
-        `check_out=${bookingData.checkout}&` +
-        `guests=${bookingData.guests}`
-      );
-      const data = await response.json();
+      const params = new URLSearchParams({
+        check_in: bookingData.checkin,
+        check_out: bookingData.checkout,
+        guests: bookingData.guests
+      });
+      
+      const data = await api.request(`/api/availability/check/${id}?${params}`);
       
       if (!data.available) {
         setAvailabilityError('Không có phòng trống trong khoảng thời gian này. Vui lòng chọn ngày khác.');
@@ -211,8 +211,8 @@ const BookingPage = () => {
       
       setConfirmDialogOpen(false);
       
-      // Nếu chọn thanh toán MOMO, hiển thị component thanh toán
-      if (bookingData.paymentMethod === 'momo') {
+      // Nếu chọn thanh toán online (MOMO hoặc VNPAY), hiển thị component thanh toán
+      if (['momo', 'vnpay'].includes(bookingData.paymentMethod)) {
         setShowPayment(true);
       } else {
         // Các phương thức thanh toán khác chuyển thẳng đến success

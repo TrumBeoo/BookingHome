@@ -22,6 +22,7 @@ import DestinationsPage from './components/destinations/DestinationsPage';
 import AboutPage from './components/about/AboutPage';
 import RoomCategories from './components/RoomCategories/RoomCategories';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import ScrollToTopOnRouteChange from './components/common/ScrollToTopOnRouteChange';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
       <CssBaseline />
       <AuthProvider>
         <Router>
+          <ScrollToTopOnRouteChange />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />

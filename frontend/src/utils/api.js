@@ -73,30 +73,41 @@ class ApiService {
 
   // Booking methods
   async createBooking(bookingData) {
-    return this.request('/bookings', {
+    return this.request('/api/bookings', {
       method: 'POST',
       body: JSON.stringify(bookingData),
     });
   }
 
   async getUserBookings() {
-    return this.request('/bookings/user');
+    return this.request('/api/bookings/user');
   }
 
   // Payment methods
   async createMoMoPayment(bookingId) {
-    return this.request('/payments/momo/create', {
+    return this.request('/api/payments/momo/create', {
+      method: 'POST',
+      body: JSON.stringify({ booking_id: bookingId }),
+    });
+  }
+
+  async createVNPayPayment(bookingId) {
+    return this.request('/api/payments/vnpay/create', {
       method: 'POST',
       body: JSON.stringify({ booking_id: bookingId }),
     });
   }
 
   async checkMoMoPaymentStatus(paymentId) {
-    return this.request(`/payments/momo/status/${paymentId}`);
+    return this.request(`/api/payments/momo/status/${paymentId}`);
+  }
+
+  async checkVNPayPaymentStatus(paymentId) {
+    return this.request(`/api/payments/vnpay/status/${paymentId}`);
   }
 
   async getPaymentMethods() {
-    return this.request('/payments/methods');
+    return this.request('/api/payments/methods');
   }
 
   // Location methods

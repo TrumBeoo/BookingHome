@@ -61,8 +61,12 @@ const Login = () => {
     }
 
     try {
-      await login(formData.email, formData.password);
-      navigate('/', { replace: true });
+      const response = await login(formData.email, formData.password);
+      if (response.redirectPath) {
+        window.location.href = response.redirectPath;
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       setError(err.message || 'Đăng nhập thất bại');
     } finally {

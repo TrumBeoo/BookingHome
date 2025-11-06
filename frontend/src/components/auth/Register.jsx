@@ -85,17 +85,20 @@ const Register = () => {
     setSuccess('');
 
     if (!validate()) {
+      setError('Vui lòng kiểm tra lại thông tin đã nhập');
       setLoading(false);
       return;
     }
 
     try {
       const { confirmPassword, ...registerData } = values;
-      await register(registerData);
-      setSuccess('Đăng ký thành công! Vui lòng đăng nhập.');
+      const response = await register(registerData);
+      console.log('Registration response:', response);
+      setSuccess('Đăng ký thành công! Đang chuyển đến trang đăng nhập...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Đăng ký thất bại');
+      console.error('Registration error:', err);
+      setError(err.message || err.response?.data?.detail || 'Đăng ký thất bại');
     } finally {
       setLoading(false);
     }

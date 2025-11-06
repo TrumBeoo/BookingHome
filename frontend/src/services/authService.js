@@ -40,9 +40,11 @@ class AuthService {
 
   async login(email, password) {
     const formData = new FormData();
-    formData.append('username', email);
+    formData.append('username', email.toLowerCase().trim());
     formData.append('password', password);
 
+    console.log('Attempting login for:', email);
+    
     const data = await this.request('/auth/login', {
       method: 'POST',
       headers: {},
@@ -51,15 +53,25 @@ class AuthService {
     
     if (data.access_token) {
       setToken(data.access_token);
+      console.log('Token saved successfully');
     }
     
     return data;
   }
 
   async register(userData) {
+    console.log('Attempting registration for:', userData.email);
+    
+    const normalizedData = {
+      ...userData,
+      email: userData.email.toLowerCase().trim(),
+      name: userData.name.trim(),
+      phone: userData.phone?.trim() || null
+    };
+    
     return this.request('/auth/register', {
       method: 'POST',
-      body: JSON.stringify(userData),
+      body: JSON.stringify(normalizedData),
     });
   }
 
